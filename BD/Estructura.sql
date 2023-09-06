@@ -1,3 +1,5 @@
+use sql3644856;
+
 create table Ubicacion(
     Numero tinyint primary key auto_increment,
     Lugar varchar(25) not null
@@ -32,6 +34,23 @@ create table Usuario(
 
 ALTER TABLE Usuario
 ADD CONSTRAINT FK_Rol FOREIGN KEY (Rol) REFERENCES Rol (Numero);
+
+create table Marca(
+    Numero tinyint primary key auto_increment,
+    Nombre varchar(25) not null
+);
+
+-- Crear campo para la imagen
+create table Articulo(
+    Num_Referencia int primary key auto_increment,
+    Nombre varchar(30) not null,
+    Modelo varchar(25) not null,
+    Descripcion varchar(100) not null,
+   -- Imagen blob 
+    FechaCreacion timestamp default current_timestamp,
+    Marca tinyint not null
+);
+
 -- Agregar una connection a artiuclo 
 Create table Reporte(
     Numero int primary key auto_increment,
@@ -39,7 +58,8 @@ Create table Reporte(
     FechaCreacion timestamp default current_timestamp,
     FechaAprobacion timestamp,
     Estatus int not null,
-    Usuario int not null
+    Usuario int not null,
+    Articulo int not null
 );
 
 ALTER TABLE Reporte
@@ -48,19 +68,10 @@ ADD CONSTRAINT FK_EstatusRep FOREIGN KEY (Estatus) REFERENCES Estatus_Reporte (N
 ALTER TABLE Reporte
 ADD CONSTRAINT FK_UsuarioRep FOREIGN KEY (Usuario) REFERENCES Usuario (Numero);
 
-create table Marca(
-    Numero tinyint primary key auto_increment,
-    Nombre varchar(25) not null
-);
--- Crear campo para la imagen
-create table Articulo(
-    Num_Referencia int primary key auto_increment,
-    Nombre varchar(30) not null,
-    Modelo varchar(25) not null,
-    Descripcion varchar(100) not null,
-    FechaCreacion timestamp default current_timestamp,
-    Marca tinyint not null
-);
+ALTER TABLE Reporte
+ADD CONSTRAINT FK_ArtRep FOREIGN KEY (Articulo) REFERENCES Articulo (Num_Referencia);
+
+
 
 ALTER TABLE Articulo
 ADD CONSTRAINT FK_MarcaArt FOREIGN KEY (Marca) REFERENCES Marca (Numero);
@@ -99,7 +110,7 @@ ADD CONSTRAINT FK_UbiArt FOREIGN KEY (Num_Referencia) REFERENCES Articulo (Num_R
 create table Art_Est(
     Estatus tinyint,
     Num_Referencia int,
-    Comentario varchar(200) not null,
+    Comentario varchar(200) not null
 );
 
 ALTER TABLE Art_Est
