@@ -1,6 +1,9 @@
 import React, {useState} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
+//import axios
+import axios from 'axios';
+
 //formik
 import {Formik} from 'formik';
 
@@ -10,7 +13,7 @@ import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
 import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
         ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
 
-import {View} from 'react-native';
+import {View,ActivityIndicator} from 'react-native';
 
 const {tertiary, darklight,secondary, primary}= Colors;
 
@@ -20,6 +23,40 @@ import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 const Signup = () => {
 const [hidePassword,setHidePassword] = useState(true);
 
+//Form handling
+const [message,setMessage] = useState();
+const [messageType,setMessageType] = useState();
+
+
+const handleSignup = (credentials, setSubmitting) =>{
+    handleMessage(null);
+    const url = "https://white-trout-yoke.cyclic.cloud/api/register";
+
+    axios
+        .post(url,credentials)
+        .then((response) => {
+            const result = response.data;
+            const {message,status,data} = result;
+
+            if (status !== 'SUCCESS'){
+                handleMessage(message,status);
+            }else{
+                navigation.navigate('Welcome',{...data});
+            }
+            setSubmitting(false);
+
+    }).catch(error => {
+        console.log(error.JSON());
+        setSubmitting(false);
+        handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
+    })
+}
+
+    const handleMessage = (message,type = 'FAILED') => {
+        setMessage(message);
+        setMessageType(type);
+    }
+
     return(
         <KeyboardAvoidingWrapper>
             <StyledContainer>
@@ -28,32 +65,41 @@ const [hidePassword,setHidePassword] = useState(true);
                     <PageTitle>Gestión de Inventarios</PageTitle>
                     <SubTitle>Registrate</SubTitle>
                     <Formik
-                        initialValues={{Name:'',lastName:'',email:'',password:'',confirmPassword:''}}
-                        onSubmit={(values) => {
-                            console.log(values);
+                        initialValues={{name:'',lastname:'',email:'',password:'',confirmPassword:''}}
+                        onSubmit={(values, setSubmitting) => {
+                            values = {...values};
+                            if(values.name == '' || values.lastname == '' || values.email == ''|| values.password == ''|| values.confirmPassword == ''){
+                                handleMessage("Por favor llene todos los campos");
+                                setSubmitting(false);
+                            }else if (values.password !== values.confirmPassword){
+                                handleMessage("Las contraseñas no son iguales");
+                                setSubmitting(false);
+                            }else{
+                                handleSignup(values,setSubmitting);
+                            }
                         }}>
                     {
-                        ({handleChange, handleBlur, handleSubmit, values}) => 
+                        ({handleChange, handleBlur, handleSubmit, values, isSubmitting}) => 
                             (<StyledFormArea>
                                 <MyTextInput
                                     label="Nombre"
                                     icon="person"
                                     placeholder="Howard"
                                     placeholderTextColor={darklight}
-                                    onChangeText={handleChange('Name')}
-                                    onBlur={handleBlur('Name')}
-                                    value={values.Name}
+                                    onChangeText={handleChange('name')}
+                                    onBlur={handleBlur('name')}
+                                    value={values.name}
                                     keyboardType="email-address"
                                 />
 
                                 <MyTextInput
                                     label="Apellido"
-                                    icon="mail"
+                                    icon="person"
                                     placeholder="García"
                                     placeholderTextColor={darklight}
-                                    onChangeText={handleChange('lastName')}
-                                    onBlur={handleBlur('lastName')}
-                                    value={values.lastName}
+                                    onChangeText={handleChange('lastname')}
+                                    onBlur={handleBlur('lastname')}
+                                    value={values.lastname}
                                     keyboardType="email-address"
                                 />
 
@@ -83,7 +129,7 @@ const [hidePassword,setHidePassword] = useState(true);
                                 />
 
                                 <MyTextInput
-                                    label="Confirma Contraseña"
+                                    label="Confirma la Contraseña"
                                     icon="lock"
                                     placeholder="* * * * * * * "
                                     placeholderTextColor={darklight}
@@ -96,16 +142,20 @@ const [hidePassword,setHidePassword] = useState(true);
                                     setHidePassword={setHidePassword}
                                 />
 
-                                <MsgBox>...</MsgBox>
+                                <MsgBox type={messageType}>{message}</MsgBox>
 
-                                <StyledButton onPress={handleSubmit}>
-                                    <ButtonText>Entrar</ButtonText>
-                                </StyledButton>
+                                {!isSubmitting && <StyledButton onPress={handleSubmit}>
+                                    <ButtonText>Registrar</ButtonText>
+                                </StyledButton>}
+
+                                {isSubmitting && <StyledButton disabled={true}>
+                                    <ActivityIndicator size="large" color={primary}/>
+                                </StyledButton>}
 
                                 <Line/>
 
                                 <ExtraView>
-                                    <ExtraText>¿Ya tienes una cuenta?</ExtraText>
+                                    <ExtraText>¿Ya tienes una cuenta? </ExtraText>
                                     <Textlink>
                                     <TextLinkContent>Inicia Sesión</TextLinkContent>
                                     </Textlink>

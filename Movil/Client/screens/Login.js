@@ -1,8 +1,11 @@
 import React, {useState} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
+//Axios
+import axios from 'axios';
+
 //formik
-import {Formik} from 'formik';
+import {Formik} from 'formik';``
 
 //icons
 import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
@@ -10,7 +13,7 @@ import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
 import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
         ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
 
-import {View} from 'react-native';
+import {View, ActivityIndicator} from 'react-native';
 //colors
 const {tertiary, darklight,secondary, primary}= Colors;
 
@@ -19,6 +22,38 @@ import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 
 const Login = ({navigation}) => {
 const [hidePassword,setHidePassword] = useState(true);
+const [message,setMessage] = useState();
+const [messageType,setMessageType] = useState();
+
+
+const handleLogin = (credentials, setSubmitting) =>{
+    handleMessage(null);
+    const url = "https://white-trout-yoke.cyclic.cloud/api/login";
+
+    axios
+        .post(url,credentials)
+        .then((response) => {
+            const result = response.data;
+            const {message,status,data} = result;
+
+            if (status !== 'SUCCESS'){
+                handleMessage(message,status);
+            }else{
+                navigation.navigate('Welcome',{...data});
+            }
+            setSubmitting(false);
+
+    }).catch(error => {
+        console.log(error.JSON());
+        setSubmitting(false);
+        handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
+    })
+}
+
+    const handleMessage = (message,type = 'FAIL') => {
+        setMessage(message);
+        setMessageType(type);
+    }
 
     return(
         <KeyboardAvoidingWrapper>
@@ -30,12 +65,16 @@ const [hidePassword,setHidePassword] = useState(true);
                     <SubTitle>Inicio de Sesión</SubTitle>
                     <Formik
                         initialValues={{email:'',password:''}}
-                        onSubmit={(values) => {
-                            console.log(values);
-                            navigation.navigate('Welcome');
+                        onSubmit={(values,{setSubmitting}) => {
+                            if(values.email == '' || values.password == '' ){
+                                handleMessage("Por favor llene todos los campos");
+                                setSubmitting(false);
+                            }else{
+                                handleLogin(values,setSubmitting);
+                            }
                         }}>
                     {
-                        ({handleChange, handleBlur, handleSubmit, values}) => 
+                        ({handleChange, handleBlur, handleSubmit, values, isSubmitting}) => 
                             (<StyledFormArea>
                                 <MyTextInput
                                     label="Correo Electronico"
@@ -62,11 +101,15 @@ const [hidePassword,setHidePassword] = useState(true);
                                     setHidePassword={setHidePassword}
                                 />
 
-                                <MsgBox>...</MsgBox>
+                                <MsgBox type={messageType}>{message}</MsgBox>
 
-                                <StyledButton onPress={handleSubmit}>
+                                {!isSubmitting && <StyledButton onPress={handleSubmit}>
                                     <ButtonText>Entrar</ButtonText>
-                                </StyledButton>
+                                </StyledButton>}
+
+                                {isSubmitting && <StyledButton disabled={true}>
+                                    <ActivityIndicator size="large" color={primary}/>
+                                </StyledButton>}
 
                                 <Line/>
 
@@ -76,7 +119,7 @@ const [hidePassword,setHidePassword] = useState(true);
                                 </StyledButton>
 
                                 <ExtraView>
-                                    <ExtraText>¿No tienes una cuenta?</ExtraText>
+                                    <ExtraText>¿No tienes una cuenta? </ExtraText>
                                     <Textlink onPress={() => navigation.navigate('Signup')}>
                                     <TextLinkContent>Registrate</TextLinkContent>
                                     </Textlink>

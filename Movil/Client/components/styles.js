@@ -11,10 +11,12 @@ export const Colors = {
     tertiary: "#b3945e",
     brand: "#ffffff",
     grey: '#e5e7eb',
-    darklight: '#9CA3AF'
+    darklight: '#9CA3AF',
+    red:'#DF2E38',
+    green:'#5D9C59'
 };
 
-const {primary,secondary,tertiary,brand,grey,darklight} = Colors;
+const {primary,secondary,tertiary,brand,grey,darklight,red,green} = Colors;
 
 export const StyledContainer = styled.View`
     flex: 1;
@@ -115,6 +117,7 @@ export const ButtonText = styled.Text`
 export const MsgBox = styled.Text`
     text-align: center;
     font-size: 13px;
+    color: ${props => props.type == 'SUCCESS' ? green : red};
 `;
 
 export const Line = styled.View`
