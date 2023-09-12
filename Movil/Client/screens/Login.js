@@ -1,5 +1,11 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import { StatusBar } from 'expo-status-bar';
+
+//Credentials Context
+import CredentialsContext from './../components/CredentialsContext';
+
+//AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 //Axios
 import axios from 'axios';
@@ -25,6 +31,7 @@ const [hidePassword,setHidePassword] = useState(true);
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
 
+    const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
 
 const handleLogin = (credentials, setSubmitting) =>{
     handleMessage(null);
@@ -39,7 +46,7 @@ const handleLogin = (credentials, setSubmitting) =>{
             if (status !== 'SUCCESS'){
                 handleMessage(message,status);
             }else{
-                navigation.navigate('Welcome',{...data});
+                persistLogin({...data[0]}, message, status);
             }
             setSubmitting(false);
 
@@ -53,6 +60,18 @@ const handleLogin = (credentials, setSubmitting) =>{
     const handleMessage = (message,type = 'FAIL') => {
         setMessage(message);
         setMessageType(type);
+    }
+
+    const persistLogin = (credentials, message, status) => {
+        AsyncStorage.setItem('inventoryManagementCredentials',JSON.stringify(credentials))
+        .then(() => {
+            handleMessage(message,status);
+            setStoredCredentials(credentials);
+        })
+        .catch(error => {
+            console.log(error);
+            handleMessage("Persisting Login Failed");
+        })
     }
 
     return(

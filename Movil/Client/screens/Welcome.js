@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
 //formik
@@ -12,11 +12,20 @@ import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea
 
 import {View} from 'react-native';
 
+import {CredentialsContext} from './../components/CredentialsContext';
+
+//AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
 const {tertiary, darklight,secondary, primary}= Colors;
 
-const Welcome = ({route}) => {
+const Welcome = () => {
 const [hidePassword,setHidePassword] = useState(true);
-const {name,lastName,email} = route.params;
+
+const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
+const {name,lastName,email} = storedCredentials;
+
+
     return(
         <StyledContainer>
             <StatusBar style="dark"/>
