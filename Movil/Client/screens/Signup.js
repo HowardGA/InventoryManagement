@@ -26,7 +26,7 @@ import CredentialsContext from './../components/CredentialsContext';
 //AsyncStorage
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const Signup = () => {
+const Signup = (navigation) => {
 const [hidePassword,setHidePassword] = useState(true);
 
 //Form handling
@@ -35,9 +35,21 @@ const [messageType,setMessageType] = useState();
 
 const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
 
+const persistLogin = (credentials, message, status) => {
+    AsyncStorage.setItem('inventoryManagementCredentials',JSON.stringify(credentials))
+    .then(() => {
+        handleMessage(message,status);
+        setStoredCredentials(credentials);
+    })
+    .catch(error => {
+        console.log(error);
+        handleMessage("Persisting Login Failed");
+    })
+}
+
 const handleSignup = (credentials, setSubmitting) =>{
     handleMessage(null);
-    const url = "https://white-trout-yoke.cyclic.cloud/api/register";
+    const url = "http://192.168.1.187:8080/api/register";
 
     axios
         .post(url,credentials)
@@ -64,17 +76,7 @@ const handleSignup = (credentials, setSubmitting) =>{
         setMessageType(type);
     }
 
-    const persistLogin = (credentials, message, status) => {
-        AsyncStorage.setItem('inventoryManagementCredentials',JSON.stringify(credentials))
-        .then(() => {
-            handleMessage(message,status);
-            setStoredCredentials(credentials);
-        })
-        .catch(error => {
-            console.log(error);
-            handleMessage("Persisting Login Failed");
-        })
-    }
+
 
     return(
         <KeyboardAvoidingWrapper>
@@ -175,7 +177,7 @@ const handleSignup = (credentials, setSubmitting) =>{
 
                                 <ExtraView>
                                     <ExtraText>¿Ya tienes una cuenta? </ExtraText>
-                                    <Textlink>
+                                    <Textlink onPress={() => navigation.navigate('login')}>
                                     <TextLinkContent>Inicia Sesión</TextLinkContent>
                                     </Textlink>
                                 </ExtraView>

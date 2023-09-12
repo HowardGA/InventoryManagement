@@ -150,3 +150,12 @@ export const TextLinkContent = styled.Text`
     color: ${secondary};
     font-size: 15px;
 `;
+
+export const BarCodeScannerV = styled.View`
+    justifyContent: center;
+    height:300px;
+    width: 300px;
+    overflow: hidden;
+    borderRadius: 30px;
+    background: ${primary};
+`;

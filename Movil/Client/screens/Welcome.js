@@ -1,9 +1,6 @@
 import React, {useState, useContext} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
-//formik
-import {Formik} from 'formik';
-
 //icons
 import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
 
@@ -17,22 +14,28 @@ import {CredentialsContext} from './../components/CredentialsContext';
 //AsyncStorage
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+import { useNavigation } from '@react-navigation/native';
+
 const {tertiary, darklight,secondary, primary}= Colors;
 
 const Welcome = () => {
 const [hidePassword,setHidePassword] = useState(true);
 
-const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
-const {name,lastName,email} = storedCredentials;
 
+
+const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
+//const {name,lastName,email} = storedCredentials;
+const navigation = useNavigation();
 
     return(
         <StyledContainer>
             <StatusBar style="dark"/>
             <InnerContainer>
-                <PageLogo resizeMode="cover" source={require('./../assets/images/C4Logo.png')}/>
                 <PageTitle>Home</PageTitle>
-                <SubTitle>{name}</SubTitle>
+                <RightIcon onPress={() => navigation.navigate('AddBarcode')}>
+                    <Ionicons  name={'barcode-outline'} size={30} color={secondary}/>
+                </RightIcon>
+                {/* <SubTitle>{name}</SubTitle> */}
             </InnerContainer>
         </StyledContainer>
     );

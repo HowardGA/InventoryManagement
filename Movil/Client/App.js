@@ -13,21 +13,22 @@ import CredentialsContext from './components/CredentialsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function App() {
-  const [appReady,setAppReady] = useState(false);
-  const [storedCredentials,setStoredCredentials] = useState('');
+  const [appReady, setAppReady] = useState(false);
+  const [storedCredentials, setStoredCredentials] = useState("");
 
   const checkLoginCredentials = () => {
-    AsyncStorage
-      .getItem('inventoryManagementCredentials')
-      .then((result) =>{
-        if(result !== null){
+    AsyncStorage.getItem('inventoryManagementCredentials')
+      .then((result) => {
+        console.log('AsyncStorage result:', result); // Log the result
+        if (result !== null) {
           setStoredCredentials(JSON.parse(result));
-        }else{
+        } else {
           setStoredCredentials(null);
         }
       })
-      .catch(error => {console.log(error)});
-  }
+      .catch((error) => console.log(error));
+  };
+  
   
   if(!appReady){
     return(
