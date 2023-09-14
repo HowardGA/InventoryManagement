@@ -31,10 +31,8 @@ const navigation = useNavigation();
         <StyledContainer>
             <StatusBar style="dark"/>
             <InnerContainer>
-                <PageTitle>Buscar</PageTitle>
-                <RightIcon onPress={() => navigation.navigate('AddBarcode')}>
-                    <Ionicons  name={'barcode-outline'} size={30} color={secondary}/>
-                </RightIcon>
+                <PageTitle>Usuario</PageTitle>
+
                 {/* <SubTitle>{name}</SubTitle> */}
             </InnerContainer>
         </StyledContainer>

@@ -4,6 +4,9 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+//import icons
+import {Ionicons} from '@expo/vector-icons'
+
 //colors
 import {Colors} from './../components/styles';
 const {primary,secondary,tertiary} = Colors;
@@ -14,6 +17,7 @@ import Signup from './../screens/Signup';
 import Welcome from './../screens/Welcome';
 import Add from './../screens/Add';
 import AddBarcode from './../screens/AddBarcode';
+import User from './../screens/User';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,11 +37,26 @@ const TabNavigator = () => {
             color: secondary
           },
       }}>
-        <Tab.Screen name="Home" component={Welcome}  options={{
-        headerShown: false,
+        <Tab.Screen name="Buscar" component={Welcome}  options={{
+        headerShown: false, tabBarIcon: ({size, color}) => (
+          <Ionicons name={'search'} size={25} color={secondary}/>
+        ),tabBarLabelStyle:{
+          color: secondary
+        }
       }}/>
-        <Tab.Screen name="Add" component={Add} options={{
-        headerShown: false,
+        <Tab.Screen name="Agregar" component={Add} options={{
+        headerShown: false,  tabBarIcon: ({size, color}) => (
+          <Ionicons name={'add-circle'} size={25} color={secondary}/>
+        ),tabBarLabelStyle:{
+          color: secondary
+        }
+      }}/>
+        <Tab.Screen name="Usuario" component={User} options={{
+        headerShown: false,  tabBarIcon: ({size, color}) => (
+          <Ionicons name={'person'} size={25} color={secondary}/>
+        ),tabBarLabelStyle:{
+          color: secondary
+        }
       }}/>
       </Tab.Navigator>
     );

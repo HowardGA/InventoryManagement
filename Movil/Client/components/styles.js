@@ -158,4 +158,6 @@ export const BarCodeScannerV = styled.View`
     overflow: hidden;
     borderRadius: 30px;
     background: ${primary};
+    borderWidth:10px;
+    borderColor:${tertiary};
 `;

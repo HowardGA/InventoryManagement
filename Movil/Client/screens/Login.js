@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios';
 
 //formik
-import {Formik} from 'formik';``
+import {Formik} from 'formik';
 
 //icons
 import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
