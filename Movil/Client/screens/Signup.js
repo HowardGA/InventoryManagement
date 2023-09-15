@@ -33,6 +33,7 @@ const [hidePassword,setHidePassword] = useState(true);
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
 
+
 const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
 
 const persistLogin = (credentials, message, status) => {
@@ -41,8 +42,8 @@ const persistLogin = (credentials, message, status) => {
         handleMessage(message,status);
         setStoredCredentials(credentials);
     })
-    .catch(error => {
-        console.log(error);
+    .catch((error) => {
+        console.error(error);
         handleMessage("Persisting Login Failed");
     })
 }
@@ -64,8 +65,8 @@ const handleSignup = (credentials, setSubmitting) =>{
             }
             setSubmitting(false);
 
-    }).catch(error => {
-        console.log(error.JSON());
+    }).catch((error) => {
+        console.error(error);
         setSubmitting(false);
         handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
     })

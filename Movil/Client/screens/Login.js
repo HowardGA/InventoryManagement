@@ -50,8 +50,8 @@ const handleLogin = (credentials, setSubmitting) =>{
             }
             setSubmitting(false);
 
-    }).catch(error => {
-        console.log(error.JSON());
+    }).catch((error) => {
+        console.error(error);
         setSubmitting(false);
         handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
     })

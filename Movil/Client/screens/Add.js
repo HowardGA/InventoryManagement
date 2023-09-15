@@ -37,19 +37,89 @@ const [modalVisibleBrand,setModalVisibleBrand] = useState(false);
 const [scannedData, setScannedData] = useState(); 
 const [brandValue, setBrandValue] = useState(); 
 const [locationValue, setLocationValue] = useState(); 
-
+const [dbLocationValue, setDbLocationValue] = useState([]);
+const [dbBrandValue, setDbBrandValue] = useState([]);
 
 //gets this values from the DataBase
-const marcaOptions = ['Option 1', 'Option 2', 'Option 3'];
+const marcaOptions = dbBrandValue;
 
-const ubicacionOptions = ['Option 1', 'Option 2', 'Option 3'];
+const ubicacionOptions = dbLocationValue;
 
 const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
-//const {name,lastName,email} = storedCredentials;
+//
+
+const getLocations = async () => {
+  const url = "http://192.168.1.184:8080/api/ubicaciones";
+
+  try {
+    const response = await axios.get(url);
+    const result = response.data;
+    const resultArray = result.map((item) => item.Lugar);
+    setDbLocationValue(resultArray);
+  } catch (error) {
+    console.error("Error fetching locations:", error);
+    handleMessage("Ocurrió un error al obtener ubicaciones, por favor verifica tu conexión e intenta nuevamente");
+  }
+}
+
+const getBrands = async () => {
+  const url = "http://192.168.1.184:8080/api/marcas";
+
+  try {
+    const response = await axios.get(url);
+
+    if (response.status === 200 && Array.isArray(response.data)) {
+      const result = response.data;
+      const resultArray = result.map((item) => item.Nombre);
+      setDbBrandValue(resultArray);
+    } else {
+      console.error("Invalid response data format:", response.data);
+      handleMessage("La respuesta del servidor tiene un formato inválido");
+    }
+  } catch (error) {
+    console.error("Error fetching brands:", error);
+    handleMessage("Ocurrió un error al obtener marcas, por favor verifica tu conexión e intenta nuevamente");
+  }
+}
+
+
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      await getBrands();
+      await getLocations();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchData();
+}, []);
+
 
 const handleAdd = (values, setSubmitting) =>{
-    handleMessage(null);
-    
+  handleMessage(null);
+  const url = "http://192.168.1.184:8080/api/addItem";
+  console.log("Form Values:", values);
+  axios
+      .post(url,values)
+      .then((response) => {
+          const result = response.data;
+          const {message,status,data} = result;
+
+          if (status !== 'SUCCESS'){
+              handleMessage(message,status);
+          }else{
+            handleMessage(message,status);
+          }
+          setSubmitting(false);
+
+  }).catch((error) => {
+      console.error(error);
+      setSubmitting(false);
+      handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
+  })    
 }
 
 const handleMessage = (message,type = 'FAIL') => {
@@ -93,7 +163,7 @@ const openModalScanner = () => {
                         <Formik
                           initialValues={{codigo:'',nombre:'',modelo:'',color:'',descripcion:'',marca:'',ubicacion:''}}
                           onSubmit={(values,{setSubmitting}) => {
-                              if(values.codigo == '' || values.nombre == '' || values.modelo == '' || values.descripcion == ''|| values.marca == ''|| values.ubicacion == ''){
+                              if(values.codigo == '' || values.nombre == '' || values.modelo == '' || values.color == '' || values.descripcion == ''|| values.marca == ''|| values.ubicacion == ''){
                                   handleMessage("Por favor llene todos los campos");
                                   setSubmitting(false);
                               }else{

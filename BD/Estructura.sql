@@ -1,4 +1,3 @@
-use sql3644856;
 
 create table Ubicacion(
     Numero tinyint primary key auto_increment,
@@ -25,10 +24,8 @@ create table Usuario(
     Numero int primary key auto_increment,
     Nombre varchar(30) not null,
     ApePat varchar(20) not null,
-    ApeMat varchar(20),
-    NumCel char(10) not null,
     Correo varchar(30) not null,
-    Passwd varchar(40) not null,
+    Passwd varchar(80) not null,
     Rol tinyint not null 
 );
 
@@ -42,11 +39,11 @@ create table Marca(
 
 -- Crear campo para la imagen
 create table Articulo(
-    Num_Referencia int primary key auto_increment,
+    Num_Referencia varchar(30) primary key,
     Nombre varchar(30) not null,
     Modelo varchar(25) not null,
+    Color varchar(20) not null,
     Descripcion varchar(100) not null,
-   -- Imagen blob 
     FechaCreacion timestamp default current_timestamp,
     Marca tinyint not null
 );
@@ -59,7 +56,7 @@ Create table Reporte(
     FechaAprobacion timestamp,
     Estatus int not null,
     Usuario int not null,
-    Articulo int not null
+    Articulo varchar(30) not null
 );
 
 ALTER TABLE Reporte
@@ -78,7 +75,7 @@ ADD CONSTRAINT FK_MarcaArt FOREIGN KEY (Marca) REFERENCES Marca (Numero);
 
 create table Usr_Art(
     Usuario int,
-    Num_Referencia int
+    Num_Referencia varchar(30)
 );
 
 ALTER TABLE Usr_Art
@@ -92,7 +89,7 @@ ADD CONSTRAINT FK_ArtUsr FOREIGN KEY (Num_Referencia) REFERENCES Articulo (Num_R
 
 create table Art_Ubi(
     Ubicacion tinyint,
-    Num_Referencia int,
+    Num_Referencia varchar(30),
     FechaEntrada timestamp default current_timestamp,
     FechaSalida timestamp,
     Comentario varchar(200) not null
@@ -109,7 +106,7 @@ ADD CONSTRAINT FK_UbiArt FOREIGN KEY (Num_Referencia) REFERENCES Articulo (Num_R
 
 create table Art_Est(
     Estatus tinyint,
-    Num_Referencia int,
+    Num_Referencia varchar(30),
     Comentario varchar(200) not null
 );
 
