@@ -16,8 +16,8 @@ import Login from './../screens/Login';
 import Signup from './../screens/Signup';
 import Welcome from './../screens/Welcome';
 import Add from './../screens/Add';
-import AddBarcode from './../screens/AddBarcode';
 import User from './../screens/User';
+import Item from './../screens/Item';
 
 const Stack = createNativeStackNavigator();
 
@@ -96,7 +96,7 @@ const RootStack = () => {
                 <Stack.Screen name="Signup" component={Signup} />
               </>
             )}
-             <Stack.Screen name="AddBarcode" component={AddBarcode} />
+             <Stack.Screen name="Item" component={Item} />
           </Stack.Navigator>
         </NavigationContainer>
       )}

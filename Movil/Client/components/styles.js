@@ -67,6 +67,13 @@ export const StyledTextInput = styled.TextInput`
     margin-vertical: 3px;
     margin-bottom: 10px;
     color: ${secondary};
+
+    ${(props) => props.welcome == true && `
+        width:85%;
+    `}
+    ${(props) => props.updBrand == true && `
+    width:85%;
+`}
 `;
 
 export const StyledInputLabel = styled.Text`
@@ -87,6 +94,12 @@ export const RightIcon = styled.TouchableOpacity`
     top: 38px;
     position: absolute;
     z-index: 1;
+
+    ${(props) => props.welcomeIcon == true && `
+        right: 60px;
+        top: 36px;
+`}
+
 `;
 
 export const StyledButton = styled.TouchableOpacity`

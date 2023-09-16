@@ -2,12 +2,12 @@ import React, {useState, useContext,useEffect} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
 //icons
-import {Octicons, Ionicons} from '@expo/vector-icons'
+import {Ionicons} from '@expo/vector-icons'
 
 import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
         ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
 
-import {StyleSheet,View,Text,TouchableOpacity} from 'react-native';
+import {StyleSheet,View,Text,TouchableOpacity,ActivityIndicator} from 'react-native';
 
 import {CredentialsContext} from './../components/CredentialsContext';
 
@@ -24,11 +24,16 @@ import axios from 'axios';
 
 import { Formik } from 'formik';
 
+import Scanner from './../Modal/BarCodeScannerM';
+
 const Welcome = () => {
 const [hidePassword,setHidePassword] = useState(true);
 const [items,setItems] = useState([]);
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
+const [modalVisibleScanner,setModalVisibleScanner] = useState(false);
+const [scannedData, setScannedData] = useState(); 
+
 
 const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
 //const {name,lastName,email} = storedCredentials;
@@ -43,6 +48,7 @@ const getItems = async () => {
       setItems(resultArray);
     } catch (error) {
       console.error("Error fetching:", error);
+      setItems(["Error"," de"," Conexión"]);
     }
   }
 
@@ -63,11 +69,45 @@ const getItems = async () => {
     setMessageType(type);
 }
 
-const lookUp = () => {
+const openModalScanner = () => {
+  setModalVisibleScanner(true);
+};
 
+const closeModalScanner = () => {
+  setModalVisibleScanner(false);
+};
+
+const handleBarcodeScanned = (data) => {
+  setScannedData(data); 
+  console.log("inside add: "+scannedData);
+  setModalVisibleScanner(false);
+};
+
+const lookUp = (values,setSubmitting) => {
+  const item = values.codigo;
+  handleMessage(null);
+  const url = `http://192.168.1.184:8080/api/getArtById/${item}`;
+  axios
+      .get(url)
+      .then((response) => {
+          const result = response.data;
+          const {message,status} = result;
+
+          if (status !== 'SUCCESS'){
+              handleMessage(message,status);
+          }else{
+            handleMessage(message,status);
+            navigation.navigate('Item',{item});
+          }  
+          setSubmitting(false);
+  }).catch((error) => {
+      console.error(error);
+      setSubmitting(false);
+      handleMessage("Articulo Inexistente");
+  })    
 }
 
-  const tableHead = ['UFC'];
+  const tableHead = ['UPC'];
   const tableData = items.map((item) => [
     <View>
         <Text style={styles.UPC}>{item}</Text>
@@ -79,8 +119,25 @@ const lookUp = () => {
   ]);
 
   const handleButtonClick = (item) => {
-    // Do something when the button is clicked for a specific item
-    console.log('Button clicked for item:', item);
+    handleMessage(null);
+    const url = `http://192.168.1.184:8080/api/getArtById/${item}`;
+    axios
+        .get(url)
+        .then((response) => {
+            const result = response.data;
+            const {message,status} = result;
+  
+            if (status !== 'SUCCESS'){
+                handleMessage(message,status);
+            }else{
+              handleMessage(message,status);
+              navigation.navigate('Item',{item});
+
+            }  
+    }).catch((error) => {
+        console.error(error);
+        handleMessage("Articulo Inexistente");
+    })    
   };
 
 
@@ -93,14 +150,14 @@ const lookUp = () => {
                         initialValues={{codigo:''}}
                         onSubmit={(values,{setSubmitting}) => {
                             if(values.codigo == ''){
-                                handleMessage("Por favor llene todos los campos");
+                                handleMessage("Por favor llene el campo");
                                 setSubmitting(false);
                             }else{
-                                handleLogin(values,setSubmitting);
+                                lookUp(values,setSubmitting);
                             }
                         }}>
                     {
-                        ({handleChange, handleBlur, handleSubmit, values, isSubmitting}) => 
+                        ({handleChange, handleBlur, handleSubmit, values,setValues, isSubmitting,setSubmitting}) => 
                             (<StyledFormArea>
                                 <MyTextInput
                                     label=""
@@ -109,9 +166,25 @@ const lookUp = () => {
                                     onChangeText={handleChange('codigo')}
                                     onBlur={handleBlur('codigo')}
                                     value={values.codigo}
+                                    welcome={true}
+                                    openModalScanner={openModalScanner}
                                 />
-
+                                    {useEffect(() => {
+                                      if (scannedData) {
+                                      setValues({ ...values, codigo: scannedData });
+                                      handleButtonClick(scannedData);
+                                      }
+                                  }, [scannedData])}
                                 <MsgBox type={messageType}>{message}</MsgBox>
+                                <View style={styles.SearchB}/>
+                                {!isSubmitting && <RightIcon onPress={handleSubmit} searchIcon={true}>
+                                      <Ionicons name={'search-sharp'}size={30} color={primary}/>
+                                    
+                                </RightIcon>}
+
+                                {isSubmitting && <StyledButton disabled={true}>
+                                    <ActivityIndicator size="large" color={primary}/>
+                                </StyledButton>}
 
                             </StyledFormArea>
                     )}
@@ -123,6 +196,7 @@ const lookUp = () => {
                     <Rows data={tableData} textStyle={styles.text}/>
                     </Table>
                 </View>
+                <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={handleBarcodeScanned}/>
         </StyledContainer>
     );
 }
@@ -159,17 +233,27 @@ const styles = StyleSheet.create({
     },
     Search:{
         alignItems:'center'
+    },
+    SearchB:{
+      backgroundColor: secondary,
+      borderTopRightRadius: 5,
+      borderBottomRightRadius: 5,
+      height:60,
+      width:50,
+      position:'absolute',
+      marginLeft:270,
+      marginTop:21,
     }
   });
 
-const MyTextInput = ({label, ...props}) =>{
+const MyTextInput = ({label,openModalScanner, ...props}) =>{
     return(
         <View>
             <StyledInputLabel>{label}</StyledInputLabel>
             <StyledTextInput {...props}/>
             {label == '' && (
-                <RightIcon onPress={() => lookUp()}>
-                    <Ionicons name={'search-sharp'}size={30} color={tertiary}/>
+                <RightIcon onPress={openModalScanner} welcomeIcon={true}>
+                    <Ionicons name={'barcode-outline'}size={30} color={secondary}/>
                 </RightIcon>
             )}
         </View>
