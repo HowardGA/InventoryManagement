@@ -9,12 +9,12 @@ import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
 
 const {tertiary, darklight,secondary, primary}= Colors;
 
-const Brand = ({ isVisible, closeModal, onBrand}) => {
+const Location = ({ isVisible, closeModal, onLocation}) => {
     const [message,setMessage] = useState();
     const [messageType,setMessageType] = useState();
 
-    const handleBrand = (values,setSubmitting) => {
-        onBrand(values.marca);
+    const handleLocation = (values,setSubmitting) => {
+        onLocation(values.locacion);
         closeModal();
         setSubmitting(false);
 
@@ -30,13 +30,13 @@ const Brand = ({ isVisible, closeModal, onBrand}) => {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Formik
-                initialValues={{ marca: '' }}
+                initialValues={{ locacion: '' }}
                 onSubmit={(values, { setSubmitting }) => {
                   if (values.marca == '') {
                     handleMessage('Por favor llene todos los campos');
                     setSubmitting(false);
                   } else {
-                    handleBrand(values, setSubmitting);
+                    handleLocation(values, setSubmitting);
                   }
                 }}
               >
@@ -45,11 +45,11 @@ const Brand = ({ isVisible, closeModal, onBrand}) => {
                     <MyTextInput
                       label="Nombre"
                       icon="pin"
-                      placeholder="HP"
+                      placeholder="Comedor"
                       placeholderTextColor={darklight}
-                      onChangeText={handleChange('marca')}
-                      onBlur={handleBlur('marca')}
-                      value={values.marca}
+                      onChangeText={handleChange('locacion')}
+                      onBlur={handleBlur('locacion')}
+                      value={values.locacion}
                     />
     
                     <MsgBox type={messageType}>{message}</MsgBox>
@@ -108,4 +108,4 @@ const MyTextInput = ({label, icon, ...props}) =>{
     );
 }
 
-export default Brand;
+export default Location;

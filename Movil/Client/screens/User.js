@@ -9,7 +9,7 @@ import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea
 
 import {View} from 'react-native';
 
-import {CredentialsContext} from './../components/CredentialsContext';
+import CredentialsContext from './../components/CredentialsContext';
 
 //AsyncStorage
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -18,25 +18,38 @@ import { useNavigation } from '@react-navigation/native';
 
 const {tertiary, darklight,secondary, primary}= Colors;
 
-const Welcome = () => {
+const User = () => {
 const [hidePassword,setHidePassword] = useState(true);
 
 
 
-const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
-//const {name,lastName,email} = storedCredentials;
+const {storedCredentials, setStoredCredentials} = useContext(CredentialsContext);
+const {name,lastName,email} = storedCredentials;
 const navigation = useNavigation();
+
+const clearLogin = () => {
+    AsyncStorage.removeItem('inventoryManagementCredentials')
+      .then(() => {
+        setStoredCredentials("");
+      })
+      .catch((error) => console.log(error));
+  };
 
     return(
         <StyledContainer>
             <StatusBar style="dark"/>
             <InnerContainer>
+            <PageLogo resizeMode="cover" source={require('./../assets/images/C4Logo.png')}/>
                 <PageTitle>Usuario</PageTitle>
 
-                {/* <SubTitle>{name}</SubTitle> */}
+                <SubTitle>{name} {lastName}</SubTitle> 
+                <SubTitle>{email}</SubTitle>
+                <StyledButton onPress={clearLogin}>
+                    <ButtonText>Logout</ButtonText>
+                </StyledButton>
             </InnerContainer>
         </StyledContainer>
     );
 }
 
-export default Welcome;
+export default User;

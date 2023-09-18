@@ -53,7 +53,7 @@ const marcaOptions = dbBrandValue;
 const ubicacionOptions = dbLocationValue;
 
 const getLocations = async () => {
-  const url = "http://192.168.1.184:8080/api/ubicaciones";
+  const url = "http://192.168.1.183:8080/api/ubicaciones";
 
   try {
     const response = await axios.get(url);
@@ -67,7 +67,7 @@ const getLocations = async () => {
 }
 
 const getBrands = async () => {
-  const url = "http://192.168.1.184:8080/api/marcas";
+  const url = "http://192.168.1.183:8080/api/marcas";
 
   try {
     const response = await axios.get(url);
@@ -87,7 +87,7 @@ const getBrands = async () => {
 }
 
 const getAllInfo = async () => {
-    const url = `http://192.168.1.184:8080/api/getArtById/${item}`;
+    const url = `http://192.168.1.183:8080/api/getArtById/${item}`;
 
     axios
       .get(url)
@@ -129,7 +129,7 @@ useEffect(() => {
 
 const handleUpdate = (values, setSubmitting) =>{
   handleMessage(null);
-  const url = "http://192.168.1.184:8080/api/addItem";
+  const url = "http://192.168.1.183:8080/api/addItem";
   console.log("Form Values:", values);
   axios
       .post(url,values)
@@ -271,55 +271,6 @@ const openModalScanner = () => {
                                 </RightIcon>
                                 </View>
 
-
-                {/* <View>
-                  <StyledInputLabel>Marca</StyledInputLabel>
-                  <Picker
-                    selectedValue={brandValue}
-                    onValueChange={(itemValue) => setBrandValue(itemValue)}
-                    style={{backgroundColor:grey, padding: 15,
-                        paddingLeft: 55,
-                        paddingRight:55,
-                        borderRadius: 5,
-                        fontSize: 16,
-                        height: 60,
-                        marginVertical: 3,
-                        marginBottom: 10,
-                        color: secondary, width:'100%'}}
-                  >
-
-                    <Picker.Item label='Seleccione una Marca' value=""/>      
-
-                    {marcaOptions.map((option) => (
-                      <Picker.Item label={option} value={option} key={option}   style={{
-                      borderRadius: 10,color: secondary}}/>
-                    ))}
-                  </Picker>
-                </View> */}
-{/*_________________________________ */}
-                {/* <View>
-                  <StyledInputLabel>Ubicación</StyledInputLabel>
-                  <Picker
-                    selectedValue={locationValue}
-                    onValueChange={(itemValue) => setLocationValue(itemValue)}
-                    style={{backgroundColor:grey, padding: 15,
-                        paddingLeft: 55,
-                        paddingRight:55,
-                        borderRadius: 5,
-                        fontSize: 16,
-                        height: 60,
-                        marginVertical: 3,
-                        marginBottom: 10,
-                        color: secondary, width:'100%'}}
-                  >
-                    <Picker.Item label="Seleccionar Ubicación" value=""/>      
-
-                    {ubicacionOptions.map((option) => (
-                      <Picker.Item label={option} value={option} key={option}   style={{
-                      borderRadius: 10,color: secondary}}/>
-                    ))}
-                  </Picker>
-                </View> */}
 
                 {useEffect(() => {
                    if (UPC) {

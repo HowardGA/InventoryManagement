@@ -13,9 +13,10 @@ import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
 import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
         ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
 
-import {View,ActivityIndicator} from 'react-native';
+import {View,ActivityIndicator,Alert} from 'react-native';
 
 import {CredentialsContext} from './../components/CredentialsContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 //AsyncStorage
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -26,19 +27,24 @@ import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 //import BarcodeScanner Modal
 import Scanner from './../Modal/BarCodeScannerM';
 import Brand from './../Modal/Brand';
+import Location from './../Modal/Location';
 
 const {tertiary, darklight,secondary, primary, grey}= Colors;
 
 const Add = () => {
+const ip = 'http://192.168.1.183:8080/api';
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
 const [modalVisibleScanner,setModalVisibleScanner] = useState(false);
 const [modalVisibleBrand,setModalVisibleBrand] = useState(false);
+const [modalVisibleLocation,setModalVisibleLocation] = useState(false);
 const [scannedData, setScannedData] = useState(); 
 const [brandValue, setBrandValue] = useState(); 
 const [locationValue, setLocationValue] = useState(); 
 const [dbLocationValue, setDbLocationValue] = useState([]);
 const [dbBrandValue, setDbBrandValue] = useState([]);
+//empty obj to add new brands or locations
+const [stringValue, setStringValue] = useState({});
 
 //gets this values from the DataBase
 const marcaOptions = dbBrandValue;
@@ -49,7 +55,7 @@ const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
 //
 
 const getLocations = async () => {
-  const url = "http://192.168.1.184:8080/api/ubicaciones";
+  const url = ip+"/ubicaciones";
 
   try {
     const response = await axios.get(url);
@@ -63,7 +69,7 @@ const getLocations = async () => {
 }
 
 const getBrands = async () => {
-  const url = "http://192.168.1.184:8080/api/marcas";
+  const url = ip+"/marcas";
 
   try {
     const response = await axios.get(url);
@@ -82,7 +88,33 @@ const getBrands = async () => {
   }
 }
 
+//check if the ID has been registered before
+const checkId = () => {
+  const url = ip+`/idCheck/${scannedData}`;
 
+  axios
+  .get(url)
+  .then((response) => {
+      const result = response.data;
+      const {id} = result;
+       if(id == 1){
+          sameIdAlert();
+            }
+}).catch((error) => {
+  console.error(error);
+  handleMessage("Err");
+})  
+}
+
+//throw an alert if the ID that wants to be register is the same
+const sameIdAlert = () => {
+  Alert.alert('UPC Invalido!', 'El codigo UPC que se quiere utilizar ya esta registrado, por favor revise su código', [
+    {
+      text: 'OK',
+      onPress: () => setScannedData(),
+    }
+  ]);
+}
 
 useEffect(() => {
   const fetchData = async () => {
@@ -100,7 +132,7 @@ useEffect(() => {
 
 const handleAdd = (values, setSubmitting) =>{
   handleMessage(null);
-  const url = "http://192.168.1.184:8080/api/addItem";
+  const url = ip+"/addItem";
   console.log("Form Values:", values);
   axios
       .post(url,values)
@@ -150,7 +182,49 @@ const openModalScanner = () => {
   };
 
   const handleBrand = (value) => {
-    setBrandValue(value); 
+    const url= ip+'/setBrand';
+    const requestData = {brand:value}
+    axios
+        .post(url,requestData)
+        .then((response) => {
+            const result = response.data;
+            const {message} = result;
+            const status = 'SUCCESS';
+
+      handleMessage(message,status);
+
+    }).catch((error) => {
+        console.error(error);
+        setSubmitting(false);
+        handleMessage("Ocurrió un error, vuelve a intentarlo");
+    })
+    setModalVisibleBrand(false);
+  };
+
+  const openModalLocation = () => {
+    setModalVisibleLocation(true);
+  };
+
+  const closeModalLocation = () => {
+    setModalVisibleLocation(false);
+  };
+
+  const handleLocation = (value) => {
+    const url= ip+'/setLocation';
+    const requestData = {location:value}
+    axios
+        .post(url,requestData)
+        .then((response) => {
+            const result = response.data;
+            const {message} = result;
+
+      handleMessage(message);
+
+    }).catch((error) => {
+        console.error(error);
+        setSubmitting(false);
+        handleMessage("Ocurrió un error, vuelve a intentarlo");
+    })
     setModalVisibleBrand(false);
   };
 
@@ -275,14 +349,15 @@ const openModalScanner = () => {
                       borderRadius: 10,color: secondary}}/>
                     ))}
                   </Picker>
-                  <RightIcon onPress={openModalBrand}>
+                  <RightIcon onPress={openModalLocation}>
                     <Ionicons name={'add'} size={30} color={secondary} />
                   </RightIcon>
                 </View>
 
                 {useEffect(() => {
                     if (scannedData) {
-                    setValues({ ...values, codigo: scannedData });
+                      checkId();
+                      setValues({ ...values, codigo: scannedData });
                     }
                     if (locationValue){
                         setFieldValue('ubicacion', locationValue );
@@ -291,6 +366,7 @@ const openModalScanner = () => {
                         setFieldValue('marca', brandValue);
                     }
                 }, [scannedData,locationValue,brandValue])}
+
 
                                 
                                 <MsgBox type={messageType}>{message}</MsgBox>
@@ -308,13 +384,14 @@ const openModalScanner = () => {
                         </Formik>
                         <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={handleBarcodeScanned}/>
                         <Brand isVisible={modalVisibleBrand} closeModal={closeModalBrand} onBrand={handleBrand}/>
+                        <Location isVisible={modalVisibleLocation} closeModal={closeModalLocation} onLocation={handleLocation}/>
                 </InnerContainer>
             </StyledContainer>
         </KeyboardAvoidingWrapper>
     );
 }
 
-const MyTextInput = ({label, icon,openModalScanner,openModalBrand, ...props}) =>{
+const MyTextInput = ({label, icon,openModalScanner, ...props}) =>{
     return(
         <View>
             <LeftIcon>

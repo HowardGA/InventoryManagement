@@ -7,7 +7,7 @@ import {Ionicons} from '@expo/vector-icons'
 import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
         ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
 
-import {StyleSheet,View,Text,TouchableOpacity,ActivityIndicator} from 'react-native';
+import {StyleSheet,View,Text,TouchableOpacity,ActivityIndicato,ScrollView,RefreshControl} from 'react-native';
 
 import {CredentialsContext} from './../components/CredentialsContext';
 
@@ -33,7 +33,7 @@ const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
 const [modalVisibleScanner,setModalVisibleScanner] = useState(false);
 const [scannedData, setScannedData] = useState(); 
-
+const [refreshing, setRefreshing] = useState(false);
 
 const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
 //const {name,lastName,email} = storedCredentials;
@@ -41,7 +41,7 @@ const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
 const navigation = useNavigation();
 
 const getItems = async () => {
-    const url = 'http://192.168.1.184:8080/api/getAllArtUPC';
+    const url = 'http://192.168.1.183:8080/api/getAllArtUPC';
     try {
       const response = await axios.get(url);
       const resultArray = response.data;
@@ -64,6 +64,18 @@ const getItems = async () => {
     fetchData();
   }, []);
 
+  const handleRefresh = () => {
+    setRefreshing(true);
+      getItems()
+      .then(() => {
+        setRefreshing(false);
+      })
+      .catch((error) => {
+        console.error('Error while refreshing:', error);
+        setRefreshing(false);
+      });
+  };
+  
   const handleMessage = (message,type = 'FAIL') => {
     setMessage(message);
     setMessageType(type);
@@ -86,7 +98,7 @@ const handleBarcodeScanned = (data) => {
 const lookUp = (values,setSubmitting) => {
   const item = values.codigo;
   handleMessage(null);
-  const url = `http://192.168.1.184:8080/api/getArtById/${item}`;
+  const url = `http://192.168.1.183:8080/api/getArtById/${item}`;
   axios
       .get(url)
       .then((response) => {
@@ -120,7 +132,7 @@ const lookUp = (values,setSubmitting) => {
 
   const handleButtonClick = (item) => {
     handleMessage(null);
-    const url = `http://192.168.1.184:8080/api/getArtById/${item}`;
+    const url = `http://192.168.1.183:8080/api/getArtById/${item}`;
     axios
         .get(url)
         .then((response) => {
@@ -142,6 +154,15 @@ const lookUp = (values,setSubmitting) => {
 
 
     return(
+      <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+        />
+      }
+    >
         <StyledContainer>
             <StatusBar style="dark"/>
                 <PageTitle>Buscar</PageTitle>
@@ -198,6 +219,7 @@ const lookUp = (values,setSubmitting) => {
                 </View>
                 <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={handleBarcodeScanned}/>
         </StyledContainer>
+        </ScrollView>
     );
 }
 
@@ -243,7 +265,11 @@ const styles = StyleSheet.create({
       position:'absolute',
       marginLeft:270,
       marginTop:21,
-    }
+    },
+    container: {
+      flex: 1,
+      backgroundColor: 'white', // Set your background color
+    },
   });
 
 const MyTextInput = ({label,openModalScanner, ...props}) =>{

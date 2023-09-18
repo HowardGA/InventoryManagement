@@ -19,9 +19,9 @@ export default function App() {
   const checkLoginCredentials = () => {
     AsyncStorage.getItem('inventoryManagementCredentials')
       .then((result) => {
-        console.log('AsyncStorage result:', result); // Log the result
         if (result !== null) {
           setStoredCredentials(JSON.parse(result));
+          console.log('AsyncStorage result:', result);
         } else {
           setStoredCredentials(null);
         }
