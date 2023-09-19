@@ -3,9 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 
 //formik
-import {Formik,Field} from 'formik';
-
-import { Picker } from '@react-native-picker/picker';
+import {Formik} from 'formik';
 
 //icons
 import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
@@ -19,6 +17,7 @@ import {View,ActivityIndicator} from 'react-native';
 import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 
 import Scanner from './../Modal/BarCodeScannerM';
+import Selector from '../Modal/Selector';
 
 import { useRoute } from '@react-navigation/native';
 
@@ -43,6 +42,10 @@ const[itemCreation,setItemCreation]=useState();
 const[itemBrand,setItemBrand]=useState();
 const [itemLocation,setitemLocation] = useState();
 const [brandPrevPicked, setBrandPrevPicked] = useState();
+//to use the selector modal
+const [selector, setSelector] = useState('');
+const [modalVisibleSelector,setModalVisibleSelector] = useState(false);
+
 
 const route = useRoute();
 const { item } = route.params;
@@ -170,6 +173,20 @@ const openModalScanner = () => {
     setModalVisibleScanner(false);
   };
 
+  const openModalSelector = () => {
+    setModalVisibleSelector(true);
+  };
+
+  const closeModalSelector = () => {
+    setModalVisibleSelector(false);
+  };
+
+  const handleSelector = (data) => {
+    console.log("option choosed: "+data);
+  };
+
+
+
     return(
         <KeyboardAvoidingWrapper>
             <StyledContainer>
@@ -199,6 +216,7 @@ const openModalScanner = () => {
                                     value={values.codigo}
                                     keyboardType="numeric"
                                     openModalScanner={openModalScanner} 
+                                    readOnly
                                 />
                              
 
@@ -250,8 +268,9 @@ const openModalScanner = () => {
                                     placeholderTextColor={darklight}
                                     value={brandPrevPicked}
                                     updBrand={true}
+                                    readOnly
                                 />
-                                 <RightIcon /*onPress={}*/>
+                                 <RightIcon onPress={() => {setSelector('marcas'); openModalSelector()}}>
                                     <Ionicons name={'chevron-forward-outline'} size={30} color={secondary} />
                                 </RightIcon>
                                 </View>
@@ -264,9 +283,10 @@ const openModalScanner = () => {
                                     placeholderTextColor={darklight}
                                     value={itemLocation}
                                     updBrand={true}
+                                    readOnly
                                 />
 
-                                <RightIcon /*onPress={}*/>
+                                <RightIcon onPress={() => {setSelector('ubicaciones');openModalSelector()}}>
                                     <Ionicons name={'chevron-forward-outline'} size={30} color={secondary} />
                                 </RightIcon>
                                 </View>
@@ -309,6 +329,7 @@ const openModalScanner = () => {
                     )}
                         </Formik>
                         <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={handleBarcodeScanned}/>
+                        <Selector isVisible={modalVisibleSelector} closeModal={closeModalSelector} onSelector={handleSelector} action={selector}/>
                 </InnerContainer>
             </StyledContainer>
         </KeyboardAvoidingWrapper>
@@ -324,8 +345,8 @@ const MyTextInput = ({label, icon,openModalScanner, ...props}) =>{
             <StyledInputLabel>{label}</StyledInputLabel>
             <StyledTextInput {...props}/>
             {label == 'UPC' && (
-                <RightIcon onPress={openModalScanner}>
-                    <Ionicons name={'barcode-outline'}size={30} color={secondary}/>
+                <RightIcon >{/*onPress={openModalScanner}*/}
+                    <Ionicons name={'barcode-outline'}size={30} color={darklight}/>
                 </RightIcon>
             )}
 

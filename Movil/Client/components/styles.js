@@ -174,3 +174,8 @@ export const BarCodeScannerV = styled.View`
     borderWidth:10px;
     borderColor:${tertiary};
 `;
+
+export const StyledScrollView = styled.ScrollView`
+    flex: 1;
+    backgroundColor: ${primary};
+    `;

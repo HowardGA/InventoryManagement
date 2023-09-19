@@ -3,19 +3,19 @@ import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 
 //formik
-import {Formik,Field} from 'formik';
+import {Formik} from 'formik';
 
 import { Picker } from '@react-native-picker/picker';
 
 //icons
-import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
+import {Octicons, Ionicons} from '@expo/vector-icons'
 
-import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
-        ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
+import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,
+StyledScrollView} from './../components/styles';
 
-import {View,ActivityIndicator,Alert} from 'react-native';
+import {View,ActivityIndicator,Alert,RefreshControl} from 'react-native';
 
-import {CredentialsContext} from './../components/CredentialsContext';
+import CredentialsContext from './../components/CredentialsContext';
 import { useFocusEffect } from '@react-navigation/native';
 
 //AsyncStorage
@@ -32,6 +32,9 @@ import Location from './../Modal/Location';
 const {tertiary, darklight,secondary, primary, grey}= Colors;
 
 const Add = () => {
+  //get stored credentials
+const {storedCredentials, setStoredCredentials} = useContext(CredentialsContext); 
+const {email} = storedCredentials;
 const ip = 'http://192.168.1.183:8080/api';
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
@@ -43,16 +46,18 @@ const [brandValue, setBrandValue] = useState();
 const [locationValue, setLocationValue] = useState(); 
 const [dbLocationValue, setDbLocationValue] = useState([]);
 const [dbBrandValue, setDbBrandValue] = useState([]);
-//empty obj to add new brands or locations
-const [stringValue, setStringValue] = useState({});
+
+//To refresh the values
+const [refreshing, setRefreshing] = useState(false);
 
 //gets this values from the DataBase
 const marcaOptions = dbBrandValue;
 
 const ubicacionOptions = dbLocationValue;
 
-const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
-//
+
+
+
 
 const getLocations = async () => {
   const url = ip+"/ubicaciones";
@@ -133,6 +138,7 @@ useEffect(() => {
 const handleAdd = (values, setSubmitting) =>{
   handleMessage(null);
   const url = ip+"/addItem";
+  values.email = email;
   console.log("Form Values:", values);
   axios
       .post(url,values)
@@ -217,8 +223,9 @@ const openModalScanner = () => {
         .then((response) => {
             const result = response.data;
             const {message} = result;
+            const status = 'SUCCESS';
 
-      handleMessage(message);
+      handleMessage(message,status);
 
     }).catch((error) => {
         console.error(error);
@@ -228,7 +235,28 @@ const openModalScanner = () => {
     setModalVisibleBrand(false);
   };
 
+  const handleRefresh = () => {
+    setRefreshing(true);
+      getBrands()
+      getLocations()
+      .then(() => {
+        setRefreshing(false);
+      })
+      .catch((error) => {
+        console.error('Error while refreshing:', error);
+        setRefreshing(false);
+      });
+  };
+
     return(
+      <StyledScrollView
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+        />
+      }
+      >
         <KeyboardAvoidingWrapper>
             <StyledContainer>
                 <StatusBar style="dark"/>
@@ -367,7 +395,6 @@ const openModalScanner = () => {
                     }
                 }, [scannedData,locationValue,brandValue])}
 
-
                                 
                                 <MsgBox type={messageType}>{message}</MsgBox>
 
@@ -388,6 +415,7 @@ const openModalScanner = () => {
                 </InnerContainer>
             </StyledContainer>
         </KeyboardAvoidingWrapper>
+        </StyledScrollView>
     );
 }
 
