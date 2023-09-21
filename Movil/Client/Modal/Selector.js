@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View,ActivityIndicator,StyleSheet} from 'react-native';
+import { Modal, View,ActivityIndicator,StyleSheet,TouchableOpacity} from 'react-native';
 import axios from 'axios';
 
 import{StyledContainer,MsgBox,LeftIcon,InnerContainer,SubTitle,StyledInputLabel,StyledFormArea,StyledButton, ButtonText, Colors,BarCodeScannerV,PageTitle,StyledTextInput} from '../components/styles';
@@ -11,8 +11,8 @@ import {Octicons} from '@expo/vector-icons'
 
 const {tertiary, darklight,secondary, primary,grey}= Colors;
 
-const Selector = ({ isVisible, closeModal, onSelector,action}) => {
-  const ip = 'http://192.168.1.183:8080/api';
+const Selector = ({ isVisible, closeModal, onSelector,action,onComentary}) => {
+  const ip = 'http://192.168.1.187:8080/api';
     const [message,setMessage] = useState();
     const [messageType,setMessageType] = useState();
     const [dbSelectorValue, setDbSelectorValue] = useState([]);
@@ -40,6 +40,8 @@ const Selector = ({ isVisible, closeModal, onSelector,action}) => {
 
     const handleSelector = (values,setSubmitting) => {
         onSelector(selectorValue);
+        console.log(values);
+        onComentary(values.comentario);
         closeModal();
         setSubmitting(false);
     }
@@ -58,10 +60,13 @@ const Selector = ({ isVisible, closeModal, onSelector,action}) => {
         <Modal visible={isVisible} transparent animationType="slide">
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+            <Octicons name="x" size={30} color={secondary} />
+          </TouchableOpacity>
               <Formik
-                initialValues={{ selector: '' }}
+                initialValues={{ selector: '', comentario:''}}
                 onSubmit={(values, { setSubmitting }) => {
-                  if (values.marca == '') {
+                  if (values.marca == '' || values.comentario == '') {
                     handleMessage('Por favor llene todos los campos');
                     setSubmitting(false);
                   } else {
@@ -69,10 +74,10 @@ const Selector = ({ isVisible, closeModal, onSelector,action}) => {
                   }
                 }}
               >
-                {({ handleSubmit, isSubmitting }) => (
+                {({ handleSubmit, isSubmitting,handleChange, handleBlur, values}) => (
                   <StyledFormArea>
                     <View>
-                  <StyledInputLabel>Marca</StyledInputLabel>
+                  <StyledInputLabel>Ubicaciones</StyledInputLabel>
                   <Picker
                     selectedValue={selectorValue}
                     onValueChange={(itemValue) => setSelectorValue(itemValue)}
@@ -94,6 +99,17 @@ const Selector = ({ isVisible, closeModal, onSelector,action}) => {
                     ))}
                   </Picker>
                 </View>
+
+                <MyTextInput
+                    label="¿Por que se esta cambiando la ubicación?"
+                    icon="question"
+                    placeholder="Motivo"
+                    placeholderTextColor={darklight}
+                    onChangeText={handleChange('comentario')}
+                    onBlur={handleBlur('comentario')}
+                    value={values.comentario}
+                />
+
                     <MsgBox type={messageType}>{message}</MsgBox>
     
                     {!isSubmitting && (
@@ -135,6 +151,11 @@ const Selector = ({ isVisible, closeModal, onSelector,action}) => {
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
+      },
+      closeButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
       },
     });
 

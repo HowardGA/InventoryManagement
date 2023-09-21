@@ -30,12 +30,13 @@ const Login = ({navigation}) => {
 const [hidePassword,setHidePassword] = useState(true);
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
+const ip = 'http://192.168.1.187:8080/api';
 
     const {storedCredentials, setStoredCredentials} = useContext(CredentialsContext);
 
 const handleLogin = (credentials, setSubmitting) =>{
     handleMessage(null);
-    const url = "http://192.168.1.183:8080/api/login";
+    const url = ip+"/login";
 
     axios
         .post(url,credentials)

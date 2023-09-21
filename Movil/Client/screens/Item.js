@@ -6,12 +6,12 @@ import axios from 'axios';
 import {Formik} from 'formik';
 
 //icons
-import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
+import {Octicons, Ionicons} from '@expo/vector-icons'
 
 import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
         ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
 
-import {View,ActivityIndicator} from 'react-native';
+import {View,ActivityIndicator,Alert} from 'react-native';
 
 //Keyboard
 import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
@@ -24,6 +24,7 @@ import { useRoute } from '@react-navigation/native';
 const {tertiary, darklight,secondary, primary, grey}= Colors;
 
 const Item = () => {
+const ip = 'http://192.168.1.187:8080/api';
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
 const [modalVisibleScanner,setModalVisibleScanner] = useState(false);
@@ -42,13 +43,18 @@ const[itemCreation,setItemCreation]=useState();
 const[itemBrand,setItemBrand]=useState();
 const [itemLocation,setitemLocation] = useState();
 const [brandPrevPicked, setBrandPrevPicked] = useState();
+const [itemUsr, setItemUsr] = useState();
+const [itemStatus, setItemStatus] = useState();
 //to use the selector modal
 const [selector, setSelector] = useState('');
 const [modalVisibleSelector,setModalVisibleSelector] = useState(false);
-
+const [selectorPicked, setSelectorPicked] = useState('');
+const [hasRunEffect, setHasRunEffect] = useState(false);
+const [comentary,setComentary] = useState('');
 
 const route = useRoute();
 const { item } = route.params;
+const {runEffect} = route.params;
 
 //gets this values from the DataBase
 const marcaOptions = dbBrandValue;
@@ -56,7 +62,7 @@ const marcaOptions = dbBrandValue;
 const ubicacionOptions = dbLocationValue;
 
 const getLocations = async () => {
-  const url = "http://192.168.1.183:8080/api/ubicaciones";
+  const url = ip+"/ubicaciones";
 
   try {
     const response = await axios.get(url);
@@ -70,7 +76,7 @@ const getLocations = async () => {
 }
 
 const getBrands = async () => {
-  const url = "http://192.168.1.183:8080/api/marcas";
+  const url = ip+"/marcas";
 
   try {
     const response = await axios.get(url);
@@ -90,14 +96,14 @@ const getBrands = async () => {
 }
 
 const getAllInfo = async () => {
-    const url = `http://192.168.1.183:8080/api/getArtById/${item}`;
+    const url = ip+`/getArtById/${item}`;
 
     axios
       .get(url)
       .then((response) => {
           const result = response.data;
           const {data} = result;
-            const{Num_Referencia,Nombre,Modelo,Color,Descripcion,FechaCreacion,Marca,locacion} = data;
+            const{Num_Referencia,Nombre,Modelo,Color,Descripcion,FechaCreacion,Marca,locacion,usuario,estado} = data;
                 setUPC(Num_Referencia);
                 setItemName(Nombre);
                 setItemModel(Modelo);
@@ -105,7 +111,9 @@ const getAllInfo = async () => {
                 setItemDesc(Descripcion);
                 setItemCreation(FechaCreacion);
                 setItemBrand(Marca);
-                setitemLocation(locacion)
+                setitemLocation(locacion);
+                setItemUsr(usuario);
+                setItemStatus(estado);
   }).catch((error) => {
       console.error(error);
       handleMessage("Err");
@@ -132,20 +140,26 @@ useEffect(() => {
 
 const handleUpdate = (values, setSubmitting) =>{
   handleMessage(null);
-  const url = "http://192.168.1.183:8080/api/addItem";
-  console.log("Form Values:", values);
+  const url = ip+"/updItem";
+  const updValues = {
+    UPC: values.codigo,
+    nombre: values.nombre,
+    descripcion: values.descripcion,
+    ubicacion: values.ubicacion,
+    comentario: comentary
+  };
   axios
-      .post(url,values)
+      .put(url,updValues)
       .then((response) => {
           const result = response.data;
-          const {message,status,data} = result;
+          const {message,status} = result;
 
           if (status !== 'SUCCESS'){
               handleMessage(message,status);
           }else{
             handleMessage(message,status);
           }
-          setSubmitting(false);
+           setSubmitting(false);
 
   }).catch((error) => {
       console.error(error);
@@ -182,9 +196,27 @@ const openModalScanner = () => {
   };
 
   const handleSelector = (data) => {
-    console.log("option choosed: "+data);
+    setSelectorPicked(data);
+  };
+  const handleComentary = (data) => {
+    setComentary(data); //comentary of why the locatio was changed
   };
 
+  const handleDisable = () =>{
+    console.log("Se")
+  }
+
+  const disableAlert = () => {
+    Alert.alert('Cuidado!', 'Un administrador debera aceptar su solicitud de baja para este articulo, ¿Esta usted seguro de dar de baja este articulo? Una vez ejecutado el cambio no se podra revertir.', [
+      {
+        text: 'Cancelar',
+      },
+      {
+        text: 'Enviar Baja',
+        onPress: () => handleDisable(),
+      }
+    ]);
+  }
 
 
     return(
@@ -193,8 +225,11 @@ const openModalScanner = () => {
                 <StatusBar style="dark"/>
                 <InnerContainer>
                     <PageTitle>{item}</PageTitle>
+                    <RightIcon >
+                    <Octicons name={'location'}size={30} color={secondary}/>
+                </RightIcon>
                         <Formik
-                          initialValues={{codigo:'',nombre:'',modelo:'',color:'',descripcion:'',marca:'',ubicacion:''}}
+                          initialValues={{codigo:'',nombre:'',modelo:'',color:'',descripcion:'',marca:'',ubicacion:'',fechaCreacion:'',creadoPor:'',estado:''}}
                           onSubmit={(values,{setSubmitting}) => {
                               if(values.codigo == '' || values.nombre == '' || values.modelo == '' || values.color == '' || values.descripcion == ''|| values.marca == ''|| values.ubicacion == ''){
                                   handleMessage("Por favor llene todos los campos");
@@ -238,6 +273,7 @@ const openModalScanner = () => {
                                     onChangeText={handleChange('modelo')}
                                     onBlur={handleBlur('modelo')}
                                     value={values.modelo}
+                                    readOnly
                                 />
 
                                 <MyTextInput
@@ -248,6 +284,7 @@ const openModalScanner = () => {
                                     onChangeText={handleChange('color')}
                                     onBlur={handleBlur('color')}
                                     value={values.color}
+                                    readOnly
                                 />
 
                                 <MyTextInput
@@ -266,13 +303,14 @@ const openModalScanner = () => {
                                     icon="list-unordered"
                                     placeholder="Marca"
                                     placeholderTextColor={darklight}
-                                    value={brandPrevPicked}
-                                    updBrand={true}
+                                    value={values.marca = brandPrevPicked}
+                                    onChangeText={handleChange('marca')}
+                                    onBlur={handleBlur('marca')}
                                     readOnly
                                 />
-                                 <RightIcon onPress={() => {setSelector('marcas'); openModalSelector()}}>
+                                 {/*<RightIcon onPress={() => {setSelector('marcas'); openModalSelector()}}>
                                     <Ionicons name={'chevron-forward-outline'} size={30} color={secondary} />
-                                </RightIcon>
+                            </RightIcon>*/}
                                 </View>
 
                                 <View>
@@ -281,8 +319,10 @@ const openModalScanner = () => {
                                     icon="list-unordered"
                                     placeholder="Ubicacion"
                                     placeholderTextColor={darklight}
-                                    value={itemLocation}
+                                    value={values.ubicacion =(selectorPicked !== '')? selectorPicked : itemLocation}
                                     updBrand={true}
+                                    onChangeText={handleChange('ubicacion')}
+                                    onBlur={handleBlur('ubiacion')}
                                     readOnly
                                 />
 
@@ -291,34 +331,76 @@ const openModalScanner = () => {
                                 </RightIcon>
                                 </View>
 
+                                <MyTextInput
+                                    label="Fecha de Creación"
+                                    icon="calendar"
+                                    placeholder="Fecha"
+                                    placeholderTextColor={darklight}
+                                    onChangeText={handleChange('fechaCreacion')}
+                                    onBlur={handleBlur('fechaCreacion')}
+                                    value={values.fechaCreacion}
+                                    readOnly
+                                />
+
+                                <MyTextInput
+                                    label="Creado Por"
+                                    icon="person-fill"
+                                    placeholder="Howard García"
+                                    placeholderTextColor={darklight}
+                                    onChangeText={handleChange('creadoPor')}
+                                    onBlur={handleBlur('creadoPor')}
+                                    value={values.creadoPor}
+                                    readOnly
+                                />
+
+                                  <MyTextInput
+                                    label="Estado"
+                                    icon="unverified"
+                                    placeholder="Activo"
+                                    placeholderTextColor={darklight}
+                                    onChangeText={handleChange('estado')}
+                                    onBlur={handleBlur('estado')}
+                                    value={values.estado}
+                                    readOnly
+                                />
+                                
 
                 {useEffect(() => {
-                   if (UPC) {
-                    setValues({
-                      ...values,
-                      codigo: UPC,
-                      nombre: itemName,
-                      modelo: itemModel,
-                      color: itemColor,
-                      descripcion: itemDesc,
-                      ubicacion: itemLocation
-                    });
-                    console.log(itemLocation);
-                  }
+                //  if (!hasRunEffect) {
+                    if (UPC) {
+                      setValues({
+                        ...values,
+                        codigo: UPC,
+                        nombre: itemName,
+                        modelo: itemModel,
+                        color: itemColor,
+                        descripcion: itemDesc,
+                        ubicacion: itemLocation,
+                        fechaCreacion: itemCreation,
+                        creadoPor: itemUsr,
+                        estado: itemStatus
+                      });
+                    }   
+                //  }
                     if (locationValue){
                         setFieldValue('ubicacion', locationValue );
                     }
                     if (brandValue){
                         setFieldValue('marca', brandValue);
                     }
+                   //r setHasRunEffect(true);
                       setBrandPrevPicked(marcaOptions[((itemBrand-1))]);
-                }, [UPC,itemName,itemModel,itemColor,itemDesc,locationValue,brandValue,itemBrand,marcaOptions,itemLocation])}
+                }, [hasRunEffect, UPC, itemName, itemModel, itemColor, itemDesc, locationValue, brandValue, itemBrand, marcaOptions, itemLocation, itemUsr, itemStatus])}
 
                                 
                                 <MsgBox type={messageType}>{message}</MsgBox>
 
                                 {!isSubmitting && <StyledButton onPress={handleSubmit}>
                                     <ButtonText>Actualizar</ButtonText>
+                                </StyledButton>}
+
+                                {!isSubmitting && <StyledButton onPress={disableAlert} disable={true}>
+                                    <ButtonText>Dar de Baja</ButtonText>
                                 </StyledButton>}
 
                                 {isSubmitting && <StyledButton disabled={true}>
@@ -329,7 +411,7 @@ const openModalScanner = () => {
                     )}
                         </Formik>
                         <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={handleBarcodeScanned}/>
-                        <Selector isVisible={modalVisibleSelector} closeModal={closeModalSelector} onSelector={handleSelector} action={selector}/>
+                        <Selector isVisible={modalVisibleSelector} closeModal={closeModalSelector} onSelector={handleSelector} action={selector} onComentary={handleComentary}/>
                 </InnerContainer>
             </StyledContainer>
         </KeyboardAvoidingWrapper>
@@ -349,7 +431,6 @@ const MyTextInput = ({label, icon,openModalScanner, ...props}) =>{
                     <Ionicons name={'barcode-outline'}size={30} color={darklight}/>
                 </RightIcon>
             )}
-
         </View>
     );
 }

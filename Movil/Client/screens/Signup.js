@@ -20,13 +20,8 @@ const {tertiary, darklight,secondary, primary}= Colors;
 //Keyboard avoiding avoid view
 import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 
-//Credentials Context
-import CredentialsContext from './../components/CredentialsContext';
-
-//AsyncStorage
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
-const Signup = (navigation) => {
+const Signup = ({navigation}) => {
+const ip = 'http://192.168.1.187:8080/api';
 const [hidePassword,setHidePassword] = useState(true);
 
 //Form handling
@@ -34,40 +29,28 @@ const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
 
 
-const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
 
-const persistLogin = (credentials, message, status) => {
-    AsyncStorage.setItem('inventoryManagementCredentials',JSON.stringify(credentials))
-    .then(() => {
-        handleMessage(message,status);
-        setStoredCredentials(credentials);
-    })
-    .catch((error) => {
-        console.error(error);
-        handleMessage("Persisting Login Failed");
-    })
-}
 
 const handleSignup = (credentials, setSubmitting) =>{
     handleMessage(null);
-    const url = "http://192.168.1.187:8080/api/register";
+    const url = ip+"/register";
 
     axios
         .post(url,credentials)
         .then((response) => {
             const result = response.data;
-            const {message,status,data} = result;
+            const {message,status} = result;
 
             if (status !== 'SUCCESS'){
                 handleMessage(message,status);
             }else{
-                persistLogin({...data}, message, status);
+                handleMessage(message,status);
+                navigation.navigate('Login');
             }
             setSubmitting(false);
 
     }).catch((error) => {
         console.error(error);
-        setSubmitting(false);
         handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
     })
 }
@@ -178,7 +161,7 @@ const handleSignup = (credentials, setSubmitting) =>{
 
                                 <ExtraView>
                                     <ExtraText>¿Ya tienes una cuenta? </ExtraText>
-                                    <Textlink onPress={() => navigation.navigate('login')}>
+                                    <Textlink onPress={() => navigation.navigate('Login')}>
                                     <TextLinkContent>Inicia Sesión</TextLinkContent>
                                     </Textlink>
                                 </ExtraView>

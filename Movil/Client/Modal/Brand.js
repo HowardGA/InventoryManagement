@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View,ActivityIndicator,StyleSheet} from 'react-native';
+import { Modal, View,ActivityIndicator,StyleSheet,TouchableOpacity} from 'react-native';
 
 import{StyledContainer,MsgBox,LeftIcon,InnerContainer,SubTitle,StyledInputLabel,StyledFormArea,StyledButton, ButtonText, Colors,BarCodeScannerV,PageTitle,StyledTextInput} from '../components/styles';
 
@@ -29,6 +29,9 @@ const Brand = ({ isVisible, closeModal, onBrand}) => {
         <Modal visible={isVisible} transparent animationType="slide">
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+            <Octicons name="x" size={30} color={secondary} />
+          </TouchableOpacity>
               <Formik
                 initialValues={{ marca: '' }}
                 onSubmit={(values, { setSubmitting }) => {
@@ -93,6 +96,11 @@ const Brand = ({ isVisible, closeModal, onBrand}) => {
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
+      },
+      closeButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
       },
     });
 

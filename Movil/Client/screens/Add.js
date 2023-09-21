@@ -35,7 +35,7 @@ const Add = () => {
   //get stored credentials
 const {storedCredentials, setStoredCredentials} = useContext(CredentialsContext); 
 const {email} = storedCredentials;
-const ip = 'http://192.168.1.183:8080/api';
+const ip = 'http://192.168.1.187:8080/api';
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
 const [modalVisibleScanner,setModalVisibleScanner] = useState(false);

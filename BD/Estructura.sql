@@ -88,15 +88,13 @@ ALTER TABLE Usr_Art
 ADD CONSTRAINT FK_ArtUsr FOREIGN KEY (Num_Referencia) REFERENCES Articulo (Num_Referencia);
 
 create table Art_Ubi(
+    Numero int primary key auto_increment,
     Ubicacion tinyint,
     Num_Referencia varchar(30),
     FechaEntrada timestamp default current_timestamp,
-    FechaSalida timestamp,
+    FechaSalida timestamp null,
     Comentario varchar(200) not null
 );
-
-ALTER TABLE Art_Ubi
-ADD CONSTRAINT PK_ArtUbi primary KEY (Ubicacion,Num_Referencia);
 
 ALTER TABLE Art_Ubi
 ADD CONSTRAINT FK_ArtUbi FOREIGN KEY (Ubicacion) REFERENCES Ubicacion (Numero);
@@ -118,5 +116,20 @@ ADD CONSTRAINT FK_Art_Est FOREIGN KEY (Estatus) REFERENCES Estatus_Articulo (Num
 
 ALTER TABLE Art_Est
 ADD CONSTRAINT FK_Est_Art FOREIGN KEY (Num_Referencia) REFERENCES Articulo (Num_Referencia);
+
+--TRIGERS:
+--Add the default status to a new item
+DELIMITER //
+CREATE TRIGGER setStatus
+AFTER INSERT ON Articulo
+FOR EACH ROW
+BEGIN
+    -- Insert a new record into Art_Est
+    INSERT INTO Art_Est (Estatus,Num_Referencia,Comentario)
+    VALUES (1,NEW.Num_Referencia,'Articulo recién añadido');
+END;
+//
+DELIMITER ;
+
 
 

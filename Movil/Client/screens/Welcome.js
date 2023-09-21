@@ -27,6 +27,7 @@ import { Formik } from 'formik';
 import Scanner from './../Modal/BarCodeScannerM';
 
 const Welcome = () => {
+const ip = 'http://192.168.1.187:8080/api';
 const [hidePassword,setHidePassword] = useState(true);
 const [items,setItems] = useState([]);
 const [message,setMessage] = useState();
@@ -41,7 +42,7 @@ const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
 const navigation = useNavigation();
 
 const getItems = async () => {
-    const url = 'http://192.168.1.183:8080/api/getAllArtUPC';
+    const url = ip+'/getAllArtUPC';
     try {
       const response = await axios.get(url);
       const resultArray = response.data;
@@ -97,8 +98,9 @@ const handleBarcodeScanned = (data) => {
 
 const lookUp = (values,setSubmitting) => {
   const item = values.codigo;
+  const runEffect = false;
   handleMessage(null);
-  const url = `http://192.168.1.183:8080/api/getArtById/${item}`;
+  const url = ip+`/getArtById/${item}`;
   axios
       .get(url)
       .then((response) => {
@@ -109,7 +111,7 @@ const lookUp = (values,setSubmitting) => {
               handleMessage(message,status);
           }else{
             handleMessage(message,status);
-            navigation.navigate('Item',{item});
+            navigation.navigate('Item',{item},{runEffect});
           }  
           setSubmitting(false);
   }).catch((error) => {
@@ -132,7 +134,7 @@ const lookUp = (values,setSubmitting) => {
 
   const handleButtonClick = (item) => {
     handleMessage(null);
-    const url = `http://192.168.1.183:8080/api/getArtById/${item}`;
+    const url = ip+`/getArtById/${item}`;
     axios
         .get(url)
         .then((response) => {
