@@ -19,6 +19,7 @@ import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 
 import Scanner from './../Modal/BarCodeScannerM';
 import Selector from '../Modal/Selector';
+import LocationHistory from '../Modal/LocationHostory';
 
 import { useRoute } from '@react-navigation/native';
 
@@ -49,6 +50,7 @@ const [itemStatus, setItemStatus] = useState();
 //to use the selector modal
 const [selector, setSelector] = useState('');
 const [modalVisibleSelector,setModalVisibleSelector] = useState(false);
+const [modalVisibleLocationHistory,setModalVisibleLocationHistory] = useState(false);
 const [selectorPicked, setSelectorPicked] = useState('');
 const [hasRunEffect, setHasRunEffect] = useState(false);
 const [comentary,setComentary] = useState('');
@@ -116,6 +118,7 @@ const getAllInfo = async () => {
                 setItemCreation(FechaCreacion);
                 setItemBrand(Marca);
                 setitemLocation(locacion);
+                console.log(locacion);
                 setItemUsr(usuario);
                 setItemStatus(estado);
   }).catch((error) => {
@@ -198,6 +201,12 @@ const openModalScanner = () => {
   const closeModalSelector = () => {
     setModalVisibleSelector(false);
   };
+  const openModalLocationHistory = () => {
+    setModalVisibleLocationHistory(true);
+  };
+  const closeModalLocationHistory = () => {
+    setModalVisibleLocationHistory(false);
+  };
 
   const handleSelector = (data) => {
     setSelectorPicked(data);
@@ -229,7 +238,7 @@ const openModalScanner = () => {
                 <StatusBar style="dark"/>
                 <InnerContainer>
                     <PageTitle>{item}</PageTitle>
-                    <RightIcon >
+                    <RightIcon onPress={openModalLocationHistory}>
                     <Octicons name={'location'}size={30} color={secondary}/>
                 </RightIcon>
                         <Formik
@@ -416,6 +425,7 @@ const openModalScanner = () => {
                         </Formik>
                         <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={handleBarcodeScanned}/>
                         <Selector isVisible={modalVisibleSelector} closeModal={closeModalSelector} onSelector={handleSelector} action={selector} onComentary={handleComentary}/>
+                        <LocationHistory isVisible={modalVisibleLocationHistory} closeModal={closeModalLocationHistory}  action={UPC}/>
                 </InnerContainer>
             </StyledContainer>
         </KeyboardAvoidingWrapper>
