@@ -74,6 +74,9 @@ export const StyledTextInput = styled.TextInput`
     ${(props) => props.updBrand == true && `
     width:85%;
 `}
+${(props) => props.reportComment == true && `
+height: 120px;
+`}
 `;
 
 export const StyledInputLabel = styled.Text`
@@ -98,6 +101,10 @@ export const RightIcon = styled.TouchableOpacity`
     ${(props) => props.welcomeIcon == true && `
         right: 60px;
         top: 36px;
+`}
+${(props) => props.onReports == true && `
+left:308px;
+top:5px;
 `}
 
 `;
@@ -184,3 +191,11 @@ export const StyledScrollView = styled.ScrollView`
     flex: 1;
     backgroundColor: ${primary};
     `;
+
+    export const StyledTextReport = styled.Text`
+    color: ${secondary};
+    font-size: 15px;
+    text-align: left;
+    font-weight: bold;
+
+`;

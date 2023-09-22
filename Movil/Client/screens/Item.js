@@ -12,6 +12,7 @@ import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea
         ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
 
 import {View,ActivityIndicator,Alert} from 'react-native';
+import CredentialsContext from './../components/CredentialsContext';
 
 //Keyboard
 import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
@@ -55,6 +56,9 @@ const [comentary,setComentary] = useState('');
 const route = useRoute();
 const { item } = route.params;
 const {runEffect} = route.params;
+
+const {storedCredentials, setStoredCredentials} = useContext(CredentialsContext); 
+const {email} = storedCredentials;
 
 //gets this values from the DataBase
 const marcaOptions = dbBrandValue;
@@ -140,16 +144,16 @@ useEffect(() => {
 
 const handleUpdate = (values, setSubmitting) =>{
   handleMessage(null);
-  const url = ip+"/updItem";
+  const url = ip+"/addReport";
   const updValues = {
     UPC: values.codigo,
-    nombre: values.nombre,
-    descripcion: values.descripcion,
     ubicacion: values.ubicacion,
-    comentario: comentary
+    comentario: comentary,
+    accion: 'Actualización',
+    usuario: email
   };
   axios
-      .put(url,updValues)
+      .post(url,updValues)
       .then((response) => {
           const result = response.data;
           const {message,status} = result;

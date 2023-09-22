@@ -92,7 +92,6 @@ const closeModalScanner = () => {
 
 const handleBarcodeScanned = (data) => {
   setScannedData(data); 
-  console.log("inside add: "+scannedData);
   setModalVisibleScanner(false);
 };
 

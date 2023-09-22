@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 //import icons
-import {Ionicons} from '@expo/vector-icons'
+import {Ionicons,Octicons} from '@expo/vector-icons'
 
 //colors
 import {Colors} from './../components/styles';
@@ -18,6 +18,8 @@ import Welcome from './../screens/Welcome';
 import Add from './../screens/Add';
 import User from './../screens/User';
 import Item from './../screens/Item';
+import Reports from './../screens/Reports';
+import DetailedInfoReport from './../screens/DetailedInfoReport'
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +49,13 @@ const TabNavigator = () => {
         <Tab.Screen name="Agregar" component={Add} options={{
         headerShown: false,  tabBarIcon: ({size, color}) => (
           <Ionicons name={'add-circle'} size={25} color={secondary}/>
+        ),tabBarLabelStyle:{
+          color: secondary
+        }
+      }}/>
+        <Tab.Screen name="Reportes" component={Reports} options={{
+        headerShown: false,  tabBarIcon: ({size, color}) => (
+          <Octicons name={'report'} size={25} color={secondary}/>
         ),tabBarLabelStyle:{
           color: secondary
         }
@@ -97,6 +106,7 @@ const RootStack = () => {
               </>
             )}
              <Stack.Screen name="Item" component={Item} />
+             <Stack.Screen name="DetailedInfoReport" component={DetailedInfoReport} />
           </Stack.Navigator>
         </NavigationContainer>
       )}

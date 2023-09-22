@@ -53,10 +53,12 @@ Create table Reporte(
     Numero int primary key auto_increment,
     Accion varchar(15) not null,
     FechaCreacion timestamp default current_timestamp,
-    FechaAprobacion timestamp,
+    FechaAprobacion timestamp null,
     Estatus int not null,
     Usuario int not null,
-    Articulo varchar(30) not null
+    Articulo varchar(30) not null,
+    Ubicacion tinyint null,
+    Comentario varchar(200) not null
 );
 
 ALTER TABLE Reporte
@@ -68,6 +70,8 @@ ADD CONSTRAINT FK_UsuarioRep FOREIGN KEY (Usuario) REFERENCES Usuario (Numero);
 ALTER TABLE Reporte
 ADD CONSTRAINT FK_ArtRep FOREIGN KEY (Articulo) REFERENCES Articulo (Num_Referencia);
 
+ALTER TABLE Reporte
+ADD CONSTRAINT FK_UbiRep FOREIGN KEY (Ubicacion) REFERENCES Ubicacion (Numero);
 
 
 ALTER TABLE Articulo
