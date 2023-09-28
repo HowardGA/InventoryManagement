@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Text, StyleSheet,View} from 'react-native';
+import { Modal, Text, StyleSheet,View,TouchableOpacity} from 'react-native';
 
 import{StyledContainer,InnerContainer,SubTitle,StyledButton, ButtonText, Colors,BarCodeScannerV} from '../components/styles';
 
 import {BarCodeScanner} from 'expo-barcode-scanner';
+import {Octicons} from '@expo/vector-icons'
 
 const {tertiary, darklight,secondary, primary}= Colors;
 
@@ -55,6 +56,9 @@ const BarCodeScannerM = ({ isVisible, closeModal, onBarcodeScanned}) => {
         <Modal visible={isVisible} transparent animationType="slide">
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+            <Octicons name="x" size={30} color={secondary} />
+          </TouchableOpacity>
               <BarCodeScannerV>
                 <BarCodeScanner
                   onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
@@ -85,6 +89,11 @@ const BarCodeScannerM = ({ isVisible, closeModal, onBarcodeScanned}) => {
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
+      },
+      closeButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
       },
     });
     

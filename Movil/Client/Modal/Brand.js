@@ -5,7 +5,7 @@ import{StyledContainer,MsgBox,LeftIcon,InnerContainer,SubTitle,StyledInputLabel,
 
 import { Formik } from 'formik';
 
-import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
+import {Octicons} from '@expo/vector-icons'
 
 const {tertiary, darklight,secondary, primary}= Colors;
 

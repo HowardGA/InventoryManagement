@@ -13,13 +13,13 @@ import {Octicons, Ionicons} from '@expo/vector-icons'
 import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,
 StyledScrollView} from './../components/styles';
 
-import {View,ActivityIndicator,Alert,RefreshControl} from 'react-native';
+import {View,ActivityIndicator,Alert,RefreshControl,Image} from 'react-native';
 
 import CredentialsContext from './../components/CredentialsContext';
 import { useFocusEffect } from '@react-navigation/native';
 
-//AsyncStorage
-import AsyncStorage from '@react-native-async-storage/async-storage'
+//import image picker
+import * as ImagePicker from 'expo-image-picker';
 
 //Keyboard
 import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
@@ -46,7 +46,17 @@ const [brandValue, setBrandValue] = useState();
 const [locationValue, setLocationValue] = useState(); 
 const [dbLocationValue, setDbLocationValue] = useState([]);
 const [dbBrandValue, setDbBrandValue] = useState([]);
+const [municipio, setMunicipio] = useState(); 
+let scannedDataSerial1 = false;
 
+const [upcScannedData, setUpcScannedData] = useState('');
+const [serialScannedData, setSerialScannedData] = useState('');
+const [inputType,setInputType] = useState('');
+
+//fot the images
+const [pickedImages, setPickedImages] = useState([]);
+//To clean theform
+const [cleanInputs, setCleanInputs] = useState(false);
 //To refresh the values
 const [refreshing, setRefreshing] = useState(false);
 
@@ -55,9 +65,7 @@ const marcaOptions = dbBrandValue;
 
 const ubicacionOptions = dbLocationValue;
 
-
-
-
+const MunicipioOptions = ['Playas de Rosarito','Tijuana','Tecate','Ensenada','Mexicali'];
 
 const getLocations = async () => {
   const url = ip+"/ubicaciones";
@@ -135,47 +143,78 @@ useEffect(() => {
 }, []);
 
 
-const handleAdd = (values, setSubmitting) =>{
-  handleMessage(null);
-  const url = ip+"/addItem";
-  values.email = email;
-  console.log("Form Values:", values);
-  axios
-      .post(url,values)
-      .then((response) => {
-          const result = response.data;
-          const {message,status,data} = result;
+const handleAdd = async (values, setSubmitting, pickedImages) => {
+  try {
+    handleMessage(null);
+    const url = `${ip}/addItem`;
+    values.email = email;
 
-          if (status !== 'SUCCESS'){
-              handleMessage(message,status);
-          }else{
-            handleMessage(message,status);
-          }
-          setSubmitting(false);
+ 
+    const formData = new FormData();
+    for (const key in values) {
+      formData.append(key, values[key]);
+    }
 
-  }).catch((error) => {
-      console.error(error);
-      setSubmitting(false);
-      handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
-  })    
-}
+    // Add images to the FormData
+    pickedImages.forEach((imageUri, index) => {
+      const fileExtension = imageUri.endsWith(".jpg") ? "jpg" : "png";
+      const uniqueIdentifier = Date.now() + index;
+      const fileName = `${values.codigo}_${values.serial}_${uniqueIdentifier}.${fileExtension}`;
+      formData.append("images", {
+        uri: imageUri,
+        type: "image/jpeg", // Adjust the content type as needed
+        name: fileName,
+      });
+    });
+
+    // Make the POST request using Axios
+    const response = await axios.post(url, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data", // Set the content type for FormData
+      },
+    });
+
+    const result = response.data;
+    const { message, status, data } = result;
+
+    if (status !== "SUCCESS") {
+      handleMessage(message, status);
+    } else {     
+      setCleanInputs(true);
+      setPickedImages([]);
+      handleMessage(message, status);
+    }
+    
+    // Set submitting to false after the request is complete
+    setSubmitting(false);
+  } catch (error) {
+    console.error(error);
+    setSubmitting(false);
+    handleMessage("Ocurrió un error, verifica tu conexión e inténtalo de nuevo");
+  }
+};
 
 const handleMessage = (message,type = 'FAIL') => {
     setMessage(message);
     setMessageType(type);
 }
 
-const openModalScanner = () => {
-    setModalVisibleScanner(true);
-  };
+const openModalScanner = (inputType) => {
+  setModalVisibleScanner(true);
+  setInputType(inputType);
+};
+
 
   const closeModalScanner = () => {
     setModalVisibleScanner(false);
   };
 
-  const handleBarcodeScanned = (data) => {
-    setScannedData(data); 
-    console.log("inside add: "+scannedData);
+  const handleBarcodeScanned = (data , inputType) => {
+    if (inputType === 'UPC') {
+      setUpcScannedData(data);
+    } else if (inputType === 'Número Serial') {
+      setSerialScannedData(data);
+    }
     setModalVisibleScanner(false);
   };
 
@@ -248,6 +287,99 @@ const openModalScanner = () => {
       });
   };
 
+  const pickImage = async (upcNumber, serialNumber) => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  
+    if (permissionResult.granted === false) {
+      alert('Permission to access the camera roll is required!');
+      return;
+    }
+  
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
+  
+    if (!result.canceled) {
+      // Determine the selected assets
+      const selectedAssets = result.assets;
+  
+      // Determine the file extensions and file names for each selected image
+      const fileExtensions = selectedAssets.map(
+        (asset) => (asset.mediaType === 'photo' ? 'jpg' : 'png')
+      );
+  
+      const uniqueIdentifier = Date.now();
+  
+      const fileNames = selectedAssets.map(
+        (_, index) =>
+          `${upcNumber}_${serialNumber}_${uniqueIdentifier}_${index}.${fileExtensions[index]}`
+      );
+  
+      // Upload the selected images to your server
+      const formData = new FormData();
+      selectedAssets.forEach((asset, index) => {
+        formData.append('images', {
+          uri: asset.uri,
+          type: asset.mediaType,
+          name: fileNames[index],
+        });
+      });
+  
+      setPickedImages([...pickedImages, ...selectedAssets.map((asset) => asset.uri)]);
+  
+      // Perform the image upload with the formData
+      // ...
+    }
+  };
+  
+
+  const pickImageFromCamera = async (upcNumber, serialNumber) => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+  
+    if (permissionResult.granted === false) {
+      alert('Permission to access the camera is required!');
+      return;
+    }
+  
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
+  
+    if (!result.canceled) {
+      // Determine the selected asset
+      const selectedAsset = result.assets[0];
+  
+      // Determine the file extension based on the selected image type
+      const fileExtension = selectedAsset.mediaType === 'photo' ? 'jpg' : 'png';
+  
+      // Generate a unique identifier (e.g., a UUID)
+      const uniqueIdentifier = Date.now();
+  
+      // Generate the file name
+      const fileName = `${upcNumber}_${serialNumber}_${uniqueIdentifier}.${fileExtension}`;
+  
+      // Upload the selected image to your server
+      const formData = new FormData();
+      formData.append('image', {
+        uri: selectedAsset.uri,
+        type: selectedAsset.type,
+        name: fileName,
+      });
+      setPickedImages([...pickedImages, selectedAsset.uri]);
+  
+      // Perform the image upload with the formData
+      // ...
+    }
+  };
+  
+  
+
     return(
       <StyledScrollView
       refreshControl={
@@ -263,28 +395,42 @@ const openModalScanner = () => {
                 <InnerContainer>
                     <PageTitle>Agregar</PageTitle>
                         <Formik
-                          initialValues={{codigo:'',nombre:'',modelo:'',color:'',descripcion:'',marca:'',ubicacion:''}}
+                          initialValues={{codigo:'',serial:'',nombre:'',modelo:'',descripcion:'',marca:'',ubicacion:'',municipio:''}}
                           onSubmit={(values,{setSubmitting}) => {
-                              if(values.codigo == '' || values.nombre == '' || values.modelo == '' || values.color == '' || values.descripcion == ''|| values.marca == ''|| values.ubicacion == ''){
+                              if(values.codigo == '' || values.serial == '' || values.nombre == '' || values.modelo == '' || values.descripcion == ''|| values.marca == ''|| values.ubicacion == '' || values.municipio == ''){
                                   handleMessage("Por favor llene todos los campos");
                                   setSubmitting(false);
                               }else{
-                                  handleAdd(values,setSubmitting);
+                                  handleAdd(values, setSubmitting, pickedImages);
                               }
                           }}>
                              {
                         ({handleChange, handleBlur, handleSubmit, values, isSubmitting,setValues,setFieldValue}) => 
                             (<StyledFormArea>
                                 <MyTextInput
-                                    label="UPC"
-                                    icon="number"
-                                    placeholder="1234567890"
-                                    placeholderTextColor={darklight}
-                                    onChangeText={handleChange('codigo')}
-                                    onBlur={handleBlur('codigo')}
-                                    value={values.codigo}
-                                    keyboardType="numeric"
-                                    openModalScanner={openModalScanner} 
+                                  label="UPC"
+                                  icon="number"
+                                  placeholder="1234567890"
+                                  placeholderTextColor={darklight}
+                                  onChangeText={handleChange('codigo')}
+                                  onBlur={handleBlur('codigo')}
+                                  value={values.codigo}
+                                  keyboardType="numeric"
+                                  openModalScanner={openModalScanner} 
+                                  inputType="UPC"
+                                />
+
+                                <MyTextInput
+                                  label="Número Serial"
+                                  icon="number"
+                                  placeholder="1234567890"
+                                  placeholderTextColor={darklight}
+                                  onChangeText={handleChange('serial')}
+                                  onBlur={handleBlur('serial')}
+                                  value={values.serial}
+                                  keyboardType="numeric"
+                                  openModalScanner={openModalScanner}
+                                  inputType="Número Serial" 
                                 />
                              
 
@@ -306,16 +452,6 @@ const openModalScanner = () => {
                                     onChangeText={handleChange('modelo')}
                                     onBlur={handleBlur('modelo')}
                                     value={values.modelo}
-                                />
-
-                                <MyTextInput
-                                    label="Color"
-                                    icon="list-unordered"
-                                    placeholder="Indigo"
-                                    placeholderTextColor={darklight}
-                                    onChangeText={handleChange('color')}
-                                    onBlur={handleBlur('color')}
-                                    value={values.color}
                                 />
 
                                 <MyTextInput
@@ -381,25 +517,93 @@ const openModalScanner = () => {
                     <Ionicons name={'add'} size={30} color={secondary} />
                   </RightIcon>
                 </View>
+                {/*----------------------------- */}
+                <View>
+                  <StyledInputLabel>Municipio</StyledInputLabel>
+                  <Picker
+                    selectedValue={municipio}
+                    onValueChange={(itemValue) => setMunicipio(itemValue)}
+                    style={{backgroundColor:grey, padding: 15,
+                        paddingLeft: 55,
+                        paddingRight:55,
+                        borderRadius: 5,
+                        fontSize: 16,
+                        height: 60,
+                        marginVertical: 3,
+                        marginBottom: 10,
+                        color: secondary, width:'100%'}}
+                  >
+                    <Picker.Item label="Seleccionar Municipio" value=""/>     
+                    {MunicipioOptions.map((option) => (
+                      <Picker.Item label={option} value={option} key={option}   style={{
+                      borderRadius: 10,color: secondary}}/>
+                    ))} 
+                  </Picker>
+                </View>
+
+                                <StyledButton google={true} onPress={() => pickImage(upcScannedData,serialScannedData)}>
+                                <Ionicons name={'images'} size={25} color={primary} />
+                                    <ButtonText>  Añadir Imagenes</ButtonText>
+                                </StyledButton>
+                                <StyledButton google={true} onPress={() => pickImageFromCamera(upcScannedData,serialScannedData)}>
+                                <Ionicons name={'camera'} size={25} color={primary} />
+                                    <ButtonText>  Tomar Fotografía</ButtonText>
+                                </StyledButton>
+
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                                  {pickedImages.map((uri, index) => (
+                                    <Image
+                                      key={index}
+                                      source={{ uri }}
+                                      style={{ width: 100, height: 100, margin: 3 }}
+                                    />
+                                  ))}
+                                </View>
+
+
 
                 {useEffect(() => {
-                    if (scannedData) {
+                    if (upcScannedData) {
                       checkId();
-                      setValues({ ...values, codigo: scannedData });
-                    }
+                      setValues({ ...values, codigo: upcScannedData });
+                    }  
+                    if (serialScannedData) {
+                      setValues({ ...values, serial: serialScannedData });
+                    }                   
                     if (locationValue){
                         setFieldValue('ubicacion', locationValue );
                     }
                     if (brandValue){
                         setFieldValue('marca', brandValue);
                     }
-                }, [scannedData,locationValue,brandValue])}
+                    if (scannedDataSerial1) {
+                      setValues({ ...values, serial: scannedData });
+                    }
+                    setFieldValue('municipio',municipio);
+                    if(cleanInputs){
+                      setValues({
+                        codigo: "",
+                        serial: "",
+                        nombre: "",
+                        modelo: "",
+                        descripcion: "",
+                        marca: "",
+                        ubicacion: "",
+                        municipio: "",
+                      });
+                      setBrandValue("");
+                      setLocationValue(""); 
+                      setMunicipio(""); 
+                      setCleanInputs(false);
+                      setSerialScannedData("");
+                    }
+                }, [upcScannedData,serialScannedData,locationValue,brandValue,municipio,cleanInputs,setBrandValue,setLocationValue,setMunicipio,setCleanInputs])}
 
                                 
                                 <MsgBox type={messageType}>{message}</MsgBox>
 
                                 {!isSubmitting && <StyledButton onPress={handleSubmit}>
-                                    <ButtonText>Agregar</ButtonText>
+                                    <ButtonText>Agregar Articulo</ButtonText>
                                 </StyledButton>}
 
                                 {isSubmitting && <StyledButton disabled={true}>
@@ -409,7 +613,7 @@ const openModalScanner = () => {
                             </StyledFormArea>
                     )}
                         </Formik>
-                        <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={handleBarcodeScanned}/>
+                        <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={(data) => handleBarcodeScanned(data, inputType)}/>
                         <Brand isVisible={modalVisibleBrand} closeModal={closeModalBrand} onBrand={handleBrand}/>
                         <Location isVisible={modalVisibleLocation} closeModal={closeModalLocation} onLocation={handleLocation}/>
                 </InnerContainer>
@@ -419,22 +623,28 @@ const openModalScanner = () => {
     );
 }
 
-const MyTextInput = ({label, icon,openModalScanner, ...props}) =>{
-    return(
-        <View>
-            <LeftIcon>
-                <Octicons name={icon} size={30} color={secondary}/>
-            </LeftIcon>
-            <StyledInputLabel>{label}</StyledInputLabel>
-            <StyledTextInput {...props}/>
-            {label == 'UPC' && (
-                <RightIcon onPress={openModalScanner}>
-                    <Ionicons name={'barcode-outline'}size={30} color={secondary}/>
-                </RightIcon>
-            )}
+const MyTextInput = ({ label, icon, openModalScanner, inputType, ...props }) => {
+  return (
+    <View>
+      <LeftIcon>
+        <Octicons name={icon} size={30} color={secondary} />
+      </LeftIcon>
+      <StyledInputLabel>{label}</StyledInputLabel>
+      <StyledTextInput {...props} />
+      {label === 'UPC' && (
+        <RightIcon onPress={() => openModalScanner('UPC')}>
+          <Ionicons name={'barcode-outline'} size={30} color={secondary} />
+        </RightIcon>
+      )}
+      {label === 'Número Serial' && (
+        <RightIcon onPress={() => openModalScanner('Número Serial')}>
+          <Ionicons name={'barcode-outline'} size={30} color={secondary} />
+        </RightIcon>
+      )}
+    </View>
+  );
+};
 
-        </View>
-    );
-}
+
 
 export default Add;

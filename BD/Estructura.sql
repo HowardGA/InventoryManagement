@@ -40,9 +40,9 @@ create table Marca(
 -- Crear campo para la imagen
 create table Articulo(
     Num_Referencia varchar(30) primary key,
+    NSerie varchar(30) not null,
     Nombre varchar(30) not null,
     Modelo varchar(25) not null,
-    Color varchar(20) not null,
     Descripcion varchar(100) not null,
     FechaCreacion timestamp default current_timestamp,
     Marca tinyint not null
@@ -58,6 +58,7 @@ Create table Reporte(
     Usuario int not null,
     Articulo varchar(30) not null,
     Ubicacion tinyint null,
+    Municipio tinyint null,
     Comentario varchar(200) not null
 );
 
@@ -72,6 +73,8 @@ ADD CONSTRAINT FK_ArtRep FOREIGN KEY (Articulo) REFERENCES Articulo (Num_Referen
 
 ALTER TABLE Reporte
 ADD CONSTRAINT FK_UbiRep FOREIGN KEY (Ubicacion) REFERENCES Ubicacion (Numero);
+ALTER TABLE Reporte
+ADD CONSTRAINT FK_MunRep FOREIGN KEY (Municipio) REFERENCES Municipio (Numero);
 
 
 ALTER TABLE Articulo
@@ -120,6 +123,23 @@ ADD CONSTRAINT FK_Art_Est FOREIGN KEY (Estatus) REFERENCES Estatus_Articulo (Num
 
 ALTER TABLE Art_Est
 ADD CONSTRAINT FK_Est_Art FOREIGN KEY (Num_Referencia) REFERENCES Articulo (Num_Referencia);
+
+create table Municipio(
+    Numero tinyint primary key auto_increment,
+    Nombre varchar(20) not null
+    );
+
+ALTER TABLE Ubicacion
+ADD CONSTRAINT FK_MunUb FOREIGN KEY (Municipio) REFERENCES Municipio (Numero);
+
+
+CREATE TABLE Imagenes (
+    Numero INT PRIMARY KEY,
+    Num_Referencia varchar(30),
+    NombreImagen VARCHAR(100)
+);
+ALTER TABLE Imagenes
+ADD CONSTRAINT FK_ImgArt FOREIGN KEY (Num_Referencia) REFERENCES Articulo (Num_Referencia);
 
 --TRIGERS:
 --Add the default status to a new item

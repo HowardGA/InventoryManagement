@@ -36,6 +36,7 @@ const[usuario,setUsuario]=useState();
 const[articulo,setArticulo]=useState();
 const[ubicacion,setUbicacion]=useState();
 const[comentario,setComentario]=useState();
+const [municipio,setMunicipio] = useState();
 
 const route = useRoute();
 const { reportID } = route.params;
@@ -53,6 +54,7 @@ const getReport = async () => {
       setUsuario(reportObj.Usuario);
       setArticulo(reportObj.Articulo);
       setUbicacion(reportObj.Ubicacion);
+      setMunicipio(reportObj.Municipio);
       setComentario(reportObj.Comentario);
     } catch (error) {
       console.error("Error fetching:", error);
@@ -129,7 +131,7 @@ const handleMessage = (message,type = 'FAIL') => {
                 <InnerContainer>
                     <PageTitle>Información</PageTitle>
                         <Formik
-                          initialValues={{accion:'',FechaCreacion:'',FechaAprobacion:'',estatus:'',articulo:'',ubicacion:'',comentario:''}}
+                          initialValues={{accion:'',FechaCreacion:'',FechaAprobacion:'',estatus:'',articulo:'',ubicacion:'',municipio:'',comentario:''}}
                           onSubmit={(values,{setSubmitting}) => {
                             disableAlert(setSubmitting);
                           }}>
@@ -210,6 +212,17 @@ const handleMessage = (message,type = 'FAIL') => {
                                     onChangeText={handleChange('ubicacion')}
                                     onBlur={handleBlur('ubicacion')}
                                     value={ubicacion}
+                                    readOnly
+                                />
+
+                                <MyTextInput
+                                    label="Municipio"
+                                    icon="home"
+                                    placeholder="Playas de Rosarito"
+                                    placeholderTextColor={darklight}
+                                    onChangeText={handleChange('municipio')}
+                                    onBlur={handleBlur('municipio')}
+                                    value={municipio}
                                     readOnly
                                 />
 

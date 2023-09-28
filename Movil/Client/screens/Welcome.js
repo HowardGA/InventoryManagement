@@ -7,7 +7,7 @@ import {Ionicons} from '@expo/vector-icons'
 import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
         ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
 
-import {StyleSheet,View,Text,TouchableOpacity,ActivityIndicato,ScrollView,RefreshControl} from 'react-native';
+import {StyleSheet,View,Text,TouchableOpacity,ActivityIndicator,ScrollView,RefreshControl} from 'react-native';
 
 import {CredentialsContext} from './../components/CredentialsContext';
 
