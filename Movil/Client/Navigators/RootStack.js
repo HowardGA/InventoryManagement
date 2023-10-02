@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useContext} from 'react';
 
 //React Navigator
 import { NavigationContainer } from '@react-navigation/native';
@@ -22,7 +22,6 @@ import Reports from './../screens/Reports';
 import DetailedInfoReport from './../screens/DetailedInfoReport'
 
 const Stack = createNativeStackNavigator();
-
 // credentials context
 import  CredentialsContext  from './../components/CredentialsContext';
 
@@ -32,6 +31,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
+  const {storedCredentials, setStoredCredentials} = useContext(CredentialsContext);
+const {role} = storedCredentials;
     return (
       <Tab.Navigator options={{
         headerShown: false,
@@ -46,6 +47,7 @@ const TabNavigator = () => {
           color: secondary
         }
       }}/>
+{(role == 1 || role == 2) &&
         <Tab.Screen name="Agregar" component={Add} options={{
         headerShown: false,  tabBarIcon: ({size, color}) => (
           <Ionicons name={'add-circle'} size={25} color={secondary}/>
@@ -53,6 +55,8 @@ const TabNavigator = () => {
           color: secondary
         }
       }}/>
+    }
+{(role == 1) &&
         <Tab.Screen name="Reportes" component={Reports} options={{
         headerShown: false,  tabBarIcon: ({size, color}) => (
           <Octicons name={'report'} size={25} color={secondary}/>
@@ -60,6 +64,7 @@ const TabNavigator = () => {
           color: secondary
         }
       }}/>
+    }
         <Tab.Screen name="Usuario" component={User} options={{
         headerShown: false,  tabBarIcon: ({size, color}) => (
           <Ionicons name={'person'} size={25} color={secondary}/>

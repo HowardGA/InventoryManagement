@@ -67,6 +67,7 @@ const handleLogin = (credentials, setSubmitting) =>{
         AsyncStorage.setItem('inventoryManagementCredentials',JSON.stringify(credentials))
         .then(() => {
             handleMessage(message,status);
+            console.log("this are the credentials: ",credentials);
             setStoredCredentials(credentials);
         })
         .catch(error => {

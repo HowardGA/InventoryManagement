@@ -102,16 +102,25 @@ const getBrands = async () => {
 }
 
 //check if the ID has been registered before
-const checkId = () => {
-  const url = ip+`/idCheck/${scannedData}`;
+const checkId = (scannedData, codeType) => {//code type is if its a UPC or a Serial Number
+  let endpoint;
+  if (codeType === 'UPC') {
+    endpoint = `/idCheck/${scannedData}`;
+  } else if (codeType === 'Serial') {
+    endpoint = `/serialCheck/${scannedData}`;
+  } else {
+    // Handle invalid codeType here
+    return;
+  }
 
+  const url = ip + endpoint;
   axios
   .get(url)
   .then((response) => {
       const result = response.data;
       const {id} = result;
        if(id == 1){
-          sameIdAlert();
+          sameIdAlert(codeType);
             }
 }).catch((error) => {
   console.error(error);
@@ -120,14 +129,21 @@ const checkId = () => {
 }
 
 //throw an alert if the ID that wants to be register is the same
-const sameIdAlert = () => {
-  Alert.alert('UPC Invalido!', 'El codigo UPC que se quiere utilizar ya esta registrado, por favor revise su código', [
+const sameIdAlert = (codeType) => {
+  let message = '';
+  if (codeType === 'UPC') {
+    message = 'El código UPC que se quiere utilizar ya está registrado, por favor revise su código UPC.';
+  } else if (codeType === 'Serial') {
+    message = 'El número serial que se quiere utilizar ya está registrado, por favor revise su número serial.';
+  }
+
+  Alert.alert('Código Duplicado', message, [
     {
       text: 'OK',
       onPress: () => setScannedData(),
     }
   ]);
-}
+};
 
 useEffect(() => {
   const fetchData = async () => {
@@ -462,6 +478,8 @@ const openModalScanner = (inputType) => {
                                     onChangeText={handleChange('descripcion')}
                                     onBlur={handleBlur('descripcion')}
                                     value={values.descripcion}
+                                    reportComment={true}
+                                    isMultiline={true}
                                 />
 
                 <View>
@@ -564,10 +582,11 @@ const openModalScanner = (inputType) => {
 
                 {useEffect(() => {
                     if (upcScannedData) {
-                      checkId();
                       setValues({ ...values, codigo: upcScannedData });
+                      checkId(upcScannedData,"UPC");
                     }  
                     if (serialScannedData) {
+                      checkId(serialScannedData,"Serial");
                       setValues({ ...values, serial: serialScannedData });
                     }                   
                     if (locationValue){
@@ -623,14 +642,16 @@ const openModalScanner = (inputType) => {
     );
 }
 
-const MyTextInput = ({ label, icon, openModalScanner, inputType, ...props }) => {
+const MyTextInput = ({ label, icon, openModalScanner, inputType,isMultiline, ...props }) => {
   return (
     <View>
       <LeftIcon>
         <Octicons name={icon} size={30} color={secondary} />
       </LeftIcon>
       <StyledInputLabel>{label}</StyledInputLabel>
-      <StyledTextInput {...props} />
+      <StyledTextInput {...props} 
+          multiline={isMultiline}
+          numberOfLines={isMultiline ? 4 : 1} />
       {label === 'UPC' && (
         <RightIcon onPress={() => openModalScanner('UPC')}>
           <Ionicons name={'barcode-outline'} size={30} color={secondary} />

@@ -12,7 +12,7 @@ create table Estatus_Articulo(
 
 create table Rol(
     Numero tinyint primary key auto_increment,
-    Rol varchar(7) not null
+    Rol varchar(15) not null
 );
 
 create table Estatus_Reporte(

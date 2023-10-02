@@ -338,6 +338,9 @@ const openModalScanner = () => {
                                     onChangeText={handleChange('descripcion')}
                                     onBlur={handleBlur('descripcion')}
                                     value={values.descripcion}
+                                    reportComment={true}
+                                    isMultiline={true}
+                                    readOnly
                                 />
 
                                 <View>
@@ -498,14 +501,17 @@ const openModalScanner = () => {
     );
 }
 
-const MyTextInput = ({label, icon,openModalScanner, ...props}) =>{
+const MyTextInput = ({label, icon,openModalScanner,isMultiline, ...props}) =>{
     return(
         <View>
             <LeftIcon>
                 <Octicons name={icon} size={30} color={secondary}/>
             </LeftIcon>
             <StyledInputLabel>{label}</StyledInputLabel>
-            <StyledTextInput {...props}/>
+            <StyledTextInput {...props}
+            multiline={isMultiline}
+            numberOfLines={isMultiline ? 4 : 1} 
+            />
             {label == 'UPC' && (
                 <RightIcon >{/*onPress={openModalScanner}*/}
                     <Ionicons name={'barcode-outline'}size={30} color={darklight}/>
