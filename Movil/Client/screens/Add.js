@@ -164,6 +164,7 @@ const handleAdd = async (values, setSubmitting, pickedImages) => {
     handleMessage(null);
     const url = `${ip}/addItem`;
     values.email = email;
+    console.log(values);
 
  
     const formData = new FormData();
@@ -411,7 +412,7 @@ const openModalScanner = (inputType) => {
                 <InnerContainer>
                     <PageTitle>Agregar</PageTitle>
                         <Formik
-                          initialValues={{codigo:'',serial:'',nombre:'',modelo:'',descripcion:'',marca:'',ubicacion:'',municipio:''}}
+                          initialValues={{codigo:'',serial:'',nombre:'',modelo:'',descripcion:'',marca:'',ubicacion:'',municipio:'',resguardante:''}}
                           onSubmit={(values,{setSubmitting}) => {
                               if(values.codigo == '' || values.serial == '' || values.nombre == '' || values.modelo == '' || values.descripcion == ''|| values.marca == ''|| values.ubicacion == '' || values.municipio == ''){
                                   handleMessage("Por favor llene todos los campos");
@@ -559,6 +560,17 @@ const openModalScanner = (inputType) => {
                   </Picker>
                 </View>
 
+
+                                <MyTextInput
+                                label="Resguardante"
+                                icon="person-fill"
+                                placeholder="Nombre del Resguardante"
+                                placeholderTextColor={darklight}
+                                onChangeText={handleChange('resguardante')}
+                                onBlur={handleBlur('resguardante')}
+                                value={values.resguardante}
+                            />
+
                                 <StyledButton google={true} onPress={() => pickImage(upcScannedData,serialScannedData)}>
                                 <Ionicons name={'images'} size={25} color={primary} />
                                     <ButtonText>  Añadir Imagenes</ButtonText>
@@ -609,6 +621,7 @@ const openModalScanner = (inputType) => {
                         marca: "",
                         ubicacion: "",
                         municipio: "",
+                        resguardante: '',
                       });
                       setBrandValue("");
                       setLocationValue(""); 

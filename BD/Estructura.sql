@@ -6,7 +6,7 @@ create table Ubicacion(
 
 create table Estatus_Articulo(
     Numero tinyint primary key auto_increment,
-    Estado varchar(10) not null
+    Estado varchar(15) not null
 
 );
 
@@ -45,7 +45,8 @@ create table Articulo(
     Modelo varchar(25) not null,
     Descripcion varchar(100) not null,
     FechaCreacion timestamp default current_timestamp,
-    Marca tinyint not null
+    Marca tinyint not null,
+    Resguardante varchar(50) not null
 );
 
 -- Agregar una connection a artiuclo 
@@ -112,7 +113,9 @@ ADD CONSTRAINT FK_UbiArt FOREIGN KEY (Num_Referencia) REFERENCES Articulo (Num_R
 create table Art_Est(
     Estatus tinyint,
     Num_Referencia varchar(30),
-    Comentario varchar(200) not null
+    Comentario varchar(200) not null,
+    Fecha timestamp not null,
+    FechaConfirmacion timestamp null
 );
 
 ALTER TABLE Art_Est

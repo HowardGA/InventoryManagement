@@ -20,6 +20,7 @@ import User from './../screens/User';
 import Item from './../screens/Item';
 import Reports from './../screens/Reports';
 import DetailedInfoReport from './../screens/DetailedInfoReport'
+import DisableItems from '../screens/DisableItems';
 
 const Stack = createNativeStackNavigator();
 // credentials context
@@ -56,6 +57,17 @@ const {role} = storedCredentials;
         }
       }}/>
     }
+
+{(role == 1 || role == 2) &&
+      <Tab.Screen name="Bajas" component={DisableItems} options={{
+        headerShown: false,  tabBarIcon: ({size, color}) => (
+          <Ionicons name={'trash'} size={25} color={secondary}/>
+        ),tabBarLabelStyle:{
+          color: secondary
+        }
+      }}/>
+    }
+
 {(role == 1) &&
         <Tab.Screen name="Reportes" component={Reports} options={{
         headerShown: false,  tabBarIcon: ({size, color}) => (

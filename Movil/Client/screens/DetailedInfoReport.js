@@ -90,6 +90,34 @@ const getReport = async () => {
     })    
   }
 
+  const proceedBaja = (setSubmitting) =>{
+    handleMessage(null);
+    const url = ip+"/disableItem/1";
+    const updValues = {
+      UPC: articulo,
+      comentario: comentario,
+      reporte:reportID.id
+    };
+    axios
+        .post(url,updValues)
+        .then((response) => {
+            const result = response.data;
+            const {message,status} = result;
+  
+            if (status !== 'SUCCESS'){
+                handleMessage(message,status);
+            }else{
+              handleMessage(message,status);
+            }
+             setSubmitting(false);
+  
+    }).catch((error) => {
+        console.error(error);
+        setSubmitting(false);
+        handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
+    })    
+  }
+
 const handleMessage = (message,type = 'FAIL') => {
     setMessage(message);
     setMessageType(type);
@@ -103,7 +131,7 @@ const handleMessage = (message,type = 'FAIL') => {
       },
       {
         text: 'Aceptar',
-        onPress: () => handleUpdate(),
+        onPress: () => (accion == 'Actualización') ? handleUpdate(setSubmitting) : proceedBaja(setSubmitting)
       }
     ]);
   }

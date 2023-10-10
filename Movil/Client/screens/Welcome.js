@@ -9,11 +9,6 @@ import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea
 
 import {StyleSheet,View,Text,TouchableOpacity,ActivityIndicator,ScrollView,RefreshControl} from 'react-native';
 
-import {CredentialsContext} from './../components/CredentialsContext';
-
-//AsyncStorage
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
 import { useNavigation } from '@react-navigation/native';
 
 const {tertiary, darklight,secondary, primary,grey}= Colors;
@@ -35,9 +30,6 @@ const [messageType,setMessageType] = useState();
 const [modalVisibleScanner,setModalVisibleScanner] = useState(false);
 const [scannedData, setScannedData] = useState(); 
 const [refreshing, setRefreshing] = useState(false);
-
-const {storedCredentials, setStoredCredentials} = useState(CredentialsContext);
-//const {name,lastName,email} = storedCredentials;
 
 const navigation = useNavigation();
 
