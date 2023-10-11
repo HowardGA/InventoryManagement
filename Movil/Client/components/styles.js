@@ -122,7 +122,12 @@ export const StyledButton = styled.TouchableOpacity`
         background-color: ${tertiary};
         flex-direction: row;
         justify-content: center;
-    `}    
+    `}   
+    ${(props) => props.logout == true && `
+    background-color: ${secondary};
+    flex-direction: row;
+    justify-content: center;
+`}  
     ${(props) => props.disable == true && `
     background-color: ${tertiary};
     flex-direction: row;

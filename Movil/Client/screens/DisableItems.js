@@ -9,7 +9,7 @@ import { Formik } from 'formik';
 import{StyledContainer,StyledFormArea,PageLogo,PageTitle,StyledTextReport,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
        } from './../components/styles';
 
-import {StyleSheet,View,ScrollView,RefreshControl,FlatList} from 'react-native';
+import {StyleSheet,View,ScrollView,RefreshControl,FlatList,ActivityIndicator} from 'react-native';
 
 
 import { useNavigation } from '@react-navigation/native';
@@ -40,7 +40,6 @@ const handleMessage = (message,type = 'FAIL') => {
 
 const handleDetailedInfo = (reportID) => {
     const UPCDisable = reportID.text;
-    console.log("This is at 1: ",UPCDisable," ",baja)
     navigation.navigate('Item',{UPCDisable,baja});
 }
 
@@ -57,24 +56,35 @@ const openModalScanner = () => {
     setModalVisibleScanner(false);    
   };
 
-const lookUp = (values,setSubmitting) => {
-    const UPCDisable = values.codigo;
-    handleMessage(null);
-    try{
-      console.log("This is at 2: ",UPCDisable," ",baja)
-              navigation.navigate('Item',{UPCDisable,baja});
-            setSubmitting(false);
-          }catch(e) {
-        console.error(error);
-        setSubmitting(false);
-        handleMessage("Articulo Inexistente");
-    }  
+const lookUp = (values,setSubmitting) => {  
+  const item = values.codigo;
+  handleMessage(null);
+  const UPCDisable = item;
+  const url = ip+`/getBajasPendientes/${item}`;
+  axios
+      .get(url)
+      .then((response) => {
+          const result = response.data;
+          const {message,status} = result;
+
+          if (status !== 'SUCCESS'){
+              handleMessage(message,status);
+          }else{
+            handleMessage(message,status);
+            navigation.navigate('Item',{UPCDisable,baja});
+          }  
+          setSubmitting(false);
+  }).catch((error) => {
+      console.error(error);
+      setSubmitting(false);
+      handleMessage("Err");
+  })    
   }
 
   const handleButtonClick = (item) => {
-    handleMessage(null);
-    const url = ip+`/getArtById/${item}`;
+    const url = ip+`/getBajasPendientes/${item}`;
     const UPCDisable = item;
+    console.log("This is at Scanner: ",UPCDisable," ",baja)
     axios
         .get(url)
         .then((response) => {
@@ -82,11 +92,11 @@ const lookUp = (values,setSubmitting) => {
             const {message,status} = result;
   
             if (status !== 'SUCCESS'){
+              console.log("error here")
                 handleMessage(message,status);
             }else{
               handleMessage(message,status);
-              navigation.navigate('Item',{UPCDisable,baja}); // Need to send something that tells that it comes from the disable section
-
+              navigation.navigate('Item',{UPCDisable,baja});
             }  
     }).catch((error) => {
         console.error(error);
