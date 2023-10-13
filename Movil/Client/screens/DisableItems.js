@@ -2,7 +2,7 @@ import React, {useState,useEffect} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
 //icons
-import {Ionicons} from '@expo/vector-icons'
+import {Ionicons,Octicons} from '@expo/vector-icons'
 
 import { Formik } from 'formik';
 
@@ -18,6 +18,8 @@ const {tertiary, darklight,secondary, primary,grey}= Colors;
 
 import axios from 'axios';
 import Scanner from './../Modal/BarCodeScannerM';
+import Bajas_Reports_History from './../Modal/Bajas_Reports_History'
+
 
 const DisableItems = () => {
 const ip = 'http://192.168.1.187:8080/api';
@@ -28,6 +30,7 @@ const [scannedData, setScannedData] = useState();
 const [isRefreshing, setIsRefreshing] = useState(false);
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
+const [modalVisibleHistory,setModalVisibleHistory] = useState(false);
 const baja = true;
 
 
@@ -157,12 +160,21 @@ const getBajas = async () => {
       });
   };
   
-
+  const closeModalHistory = () => {
+    setModalVisibleHistory(false);
+  };
+  
+  const openModalHistory = () => {
+    setModalVisibleHistory(true);
+  };
 
     return(
         <StyledContainer>
         <StatusBar style="dark" />
         <PageTitle>Bajas Pendientes</PageTitle>
+        <RightIcon reportHistory={true} onPress={openModalHistory}>
+                    <Octicons name={'history'}size={30} color={secondary}/>
+                </RightIcon>
         <View style={styles.Search}>
                 <Formik
                         initialValues={{codigo:''}}
@@ -238,6 +250,7 @@ const getBajas = async () => {
           />
         </View>
         <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={handleBarcodeScanned}/>
+        <Bajas_Reports_History isVisible={modalVisibleHistory} closeModal={closeModalHistory}  title={"Bajas"} report={false} bajas={true}/>
       </StyledContainer>
     );
 }

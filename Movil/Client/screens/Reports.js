@@ -2,7 +2,7 @@ import React, {useState, useContext,useEffect} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
 //icons
-import {Ionicons} from '@expo/vector-icons'
+import {Ionicons,Octicons} from '@expo/vector-icons'
 
 
 import{StyledContainer,InnerContainer,PageLogo,PageTitle,StyledTextReport,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
@@ -16,21 +16,29 @@ import { useNavigation } from '@react-navigation/native';
 const {tertiary, darklight,secondary, primary,grey}= Colors;
 
 import axios from 'axios';
+import Bajas_Reports_History from './../Modal/Bajas_Reports_History'
 
 const Reporte = () => {
 const ip = 'http://192.168.1.187:8080/api';
 const [refreshing, setRefreshing] = useState(false);
 const [reportsData,setReportsData] = useState([]);
-const [isRefreshing, setIsRefreshing] = useState(false);
+const [modalVisibleHistory,setModalVisibleHistory] = useState(false);
 
 const navigation = useNavigation();
 
   
 const handleDetailedInfo = (reportID) => {
-navigation.navigate('DetailedInfoReport',{reportID});
+  const reportNumber = reportID.id;
+  navigation.navigate('DetailedInfoReport',{reportNumber});
 }
 
+const closeModalHistory = () => {
+  setModalVisibleHistory(false);
+};
 
+const openModalHistory = () => {
+  setModalVisibleHistory(true);
+};
 
 const notificationsReport = [];
 
@@ -68,6 +76,7 @@ const getReports = async () => {
     };
   
     fetchData();
+
   }, []);
 
   const onRefresh = () => {
@@ -80,13 +89,14 @@ const getReports = async () => {
         setRefreshing(false); // In case of an error, also set refreshing back to false
       });
   };
-  
-
 
     return(
         <StyledContainer>
         <StatusBar style="dark" />
         <PageTitle>Reportes</PageTitle>
+        <RightIcon reportHistory={true} onPress={openModalHistory}>
+                    <Octicons name={'history'}size={30} color={secondary}/>
+                </RightIcon>
         <View style={styles.container}>
           <FlatList
             data={notificationsReport}
@@ -116,6 +126,7 @@ const getReports = async () => {
             }
           />
         </View>
+        <Bajas_Reports_History isVisible={modalVisibleHistory} closeModal={closeModalHistory}  title={"Reportes"} report={true} bajas={false}/>
       </StyledContainer>
     );
 }

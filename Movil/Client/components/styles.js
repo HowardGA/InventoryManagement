@@ -107,6 +107,11 @@ left:308px;
 top:5px;
 `}
 
+${(props) => props.reportHistory == true && `
+right: 30px;
+top: 60px;
+`}
+
 `;
 
 export const StyledButton = styled.TouchableOpacity`

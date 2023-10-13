@@ -37,25 +37,31 @@ const[articulo,setArticulo]=useState();
 const[ubicacion,setUbicacion]=useState();
 const[comentario,setComentario]=useState();
 const [municipio,setMunicipio] = useState();
+const [marca, setMarca] = useState();
+const [modelo,setModelo] = useState();
+const [resguardante,setResguardante] = useState();
 
 const route = useRoute();
-const { reportID } = route.params;
+const { reportNumber,history } = route.params;
 
 const getReport = async () => {
-    const url = ip+`/getReportById/${reportID.id}`;
+    const url = ip+`/getReportById/${reportNumber}`;
     try {
       const response = await axios.get(url);
       const reportObj = response.data;
-      console.log(reportObj);
-      setAccion(reportObj.Accion);
-      setFechaCreacion(reportObj.FechaCreacion);
-      setfechaAprobacion(reportObj.FechaAprobacion);
-      setEstatus(reportObj.Estatus);
-      setUsuario(reportObj.Usuario);
-      setArticulo(reportObj.Articulo);
-      setUbicacion(reportObj.Ubicacion);
-      setMunicipio(reportObj.Municipio);
-      setComentario(reportObj.Comentario);
+      console.log("this this: ",reportObj);
+      setAccion(reportObj[0].Accion);
+      setFechaCreacion(reportObj[0].FechaCreacion);
+      setfechaAprobacion(reportObj[0].FechaAprobacion);
+      setEstatus(reportObj[0].EstatusRep);
+      setUsuario(reportObj[0].Usuario);
+      setArticulo(reportObj[0].Articulo);
+      setMarca(reportObj[0].Marca);
+      setModelo(reportObj[0].Modelo);
+      setResguardante(reportObj[0].Resguardante);
+      setUbicacion(reportObj[0].Ubicacion);
+      setMunicipio(reportObj[0].Municipio);
+      setComentario(reportObj[0].Motivo);
     } catch (error) {
       console.error("Error fetching:", error);
     }
@@ -68,7 +74,7 @@ const getReport = async () => {
       UPC: articulo,
       ubicacion: ubicacion,
       comentario: comentario,
-      reporte:reportID.id
+      reporte:reportNumber
     };
     axios
         .put(url,updValues)
@@ -96,7 +102,7 @@ const getReport = async () => {
     const updValues = {
       UPC: articulo,
       comentario: comentario,
-      reporte:reportID.id
+      reporte:reportNumber
     };
     axios
         .post(url,updValues)
@@ -232,6 +238,38 @@ const handleMessage = (message,type = 'FAIL') => {
                                     readOnly
                                 />
 
+                                  <MyTextInput
+                                    label="Marca"
+                                    icon="list-unordered"
+                                    placeholder="1234567890"
+                                    placeholderTextColor={darklight}
+                                    onChangeText={handleChange('articulo')}
+                                    onBlur={handleBlur('articulo')}
+                                    value={marca}
+                                    readOnly
+                                />
+
+                                <MyTextInput
+                                    label="Modelo"
+                                    icon="list-unordered"
+                                    placeholder="1234567890"
+                                    placeholderTextColor={darklight}
+                                    onChangeText={handleChange('articulo')}
+                                    onBlur={handleBlur('articulo')}
+                                    value={modelo}
+                                    readOnly
+                                />
+                                      <MyTextInput
+                                    label="Resguardante"
+                                    icon="list-unordered"
+                                    placeholder="1234567890"
+                                    placeholderTextColor={darklight}
+                                    onChangeText={handleChange('articulo')}
+                                    onBlur={handleBlur('articulo')}
+                                    value={resguardante}
+                                    readOnly
+                                />
+
                                 <MyTextInput
                                     label="Ubicación En Cuestion"
                                     icon="location"
@@ -270,11 +308,11 @@ const handleMessage = (message,type = 'FAIL') => {
                                 
                                 <MsgBox type={messageType}>{message}</MsgBox>
 
-                                {!isSubmitting && <StyledButton onPress={handleSubmit}>
+                                {!isSubmitting && !history && <StyledButton onPress={handleSubmit}>
                                     <ButtonText>Aceptar</ButtonText>
                                 </StyledButton>}
 
-                                {!isSubmitting && <StyledButton onPress={handleRejection} disable={true}>
+                                {!isSubmitting && !history && <StyledButton onPress={handleRejection} disable={true}>
                                     <ButtonText>Rechazar</ButtonText>
                                 </StyledButton>}
 
