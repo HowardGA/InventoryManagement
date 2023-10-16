@@ -25,8 +25,9 @@ const Bajas_Reports_History = ({ isVisible, closeModal,title,report,bajas}) => {
 
       const handleDetailedInfoBaja = (UPCDisable) => {
         const baja = true;
+        const history = true;
         console.log("hell nah: ",UPCDisable)
-        navigation.navigate('Item',{UPCDisable, baja});
+        navigation.navigate('Item',{UPCDisable, baja, history});
       }
       const notificationsRep = [];
 

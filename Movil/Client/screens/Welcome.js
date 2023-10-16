@@ -21,34 +21,39 @@ import { Formik } from 'formik';
 
 import Scanner from './../Modal/BarCodeScannerM';
 
+import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
+
+
 const Welcome = () => {
 const ip = 'http://192.168.1.187:8080/api';
-const [hidePassword,setHidePassword] = useState(true);
-const [items,setItems] = useState([]);
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
 const [modalVisibleScanner,setModalVisibleScanner] = useState(false);
 const [scannedData, setScannedData] = useState(); 
-const [refreshing, setRefreshing] = useState(false);
+const [activeItems, setActiveItems] = useState();
+const [pendingItems, setPendingItems] = useState();
+const [disabledItems, setDisabledItems] = useState();
+
 
 const navigation = useNavigation();
 
-const getItems = async () => {
-    const url = ip+'/getAllArtUPC';
+const getCount = async () => {
+    const url = ip+'/countItems';
     try {
       const response = await axios.get(url);
-      const resultArray = response.data;
-      setItems(resultArray);
+      const {Activos,Pendientes,Baja} = response.data;
+        setActiveItems(Activos);
+        setPendingItems(Pendientes);
+        setDisabledItems(Baja);
     } catch (error) {
       console.error("Error fetching:", error);
-      setItems(["Error"," de"," Conexión"]);
     }
   }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await getItems();
+        await getCount();
       } catch (error) {
         console.error(error);
       }
@@ -56,18 +61,6 @@ const getItems = async () => {
 
     fetchData();
   }, []);
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-      getItems()
-      .then(() => {
-        setRefreshing(false);
-      })
-      .catch((error) => {
-        console.error('Error while refreshing:', error);
-        setRefreshing(false);
-      });
-  };
   
   const handleMessage = (message,type = 'FAIL') => {
     setMessage(message);
@@ -112,17 +105,6 @@ const lookUp = (values,setSubmitting) => {
   })    
 }
 
-  const tableHead = ['UPC'];
-  const tableData = items.map((item) => [
-    <View>
-        <Text style={styles.UPC}>{item}</Text>
-     <TouchableOpacity style={styles.Ricon} key={item}
-     onPress={() => handleButtonClick(item)} >
-     <Ionicons name={'chevron-forward-outline'} size={30} color={secondary} />
-   </TouchableOpacity>
-   </View>
-  ]);
-
   const handleButtonClick = (item) => {
     handleMessage(null);
     const url = ip+`/getArtById/${item}`;
@@ -147,17 +129,9 @@ const lookUp = (values,setSubmitting) => {
 
 
     return(
-      <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-        />
-      }
-    >
+      <KeyboardAvoidingWrapper>
         <StyledContainer>
-            <StatusBar style="dark"/>
+<StatusBar style="light" backgroundColor={secondary} />
                 <PageTitle>Buscar</PageTitle>
                 <View style={styles.Search}>
                 <Formik
@@ -204,15 +178,33 @@ const lookUp = (values,setSubmitting) => {
                     )}
                     </Formik>
                     </View>
-                <View style={styles.innerContainer}>
-                    <Table borderStyle={{ borderWidth: 2, borderColor: tertiary}}>
-                    <Row data={tableHead} style={styles.head} textStyle={styles.headText} />
-                    <Rows data={tableData} textStyle={styles.text}/>
-                    </Table>
-                </View>
+                    <View style={styles.container}>
+                      <View style={styles.smallCircle}>
+                        <Ionicons name={'trending-up-outline'}size={60} color={secondary} style={styles.trending}/>
+                        <View style={styles.quantityContainer}>
+                          <Text style={styles.quantity}>{activeItems}</Text>
+                        </View>
+                        <Text style={styles.numberText}>Artículos Activos</Text>
+                        </View>
+                      <View style={styles.smallCircle}>
+                        <Ionicons name={'trending-down-outline'}size={60} color={secondary} style={styles.trending}/>
+                        <View style={styles.quantityContainer}>
+                          <Text style={styles.quantity}>{disabledItems}</Text>
+                        </View>
+                        <Text style={styles.numberText}>Bajas</Text>
+                      </View>
+                      <View style={styles.smallCircle}>
+                        <Ionicons name={'trash-bin-outline'}size={60} color={secondary} style={styles.trending}/>
+                        <View style={styles.quantityContainer}>
+                          <Text style={styles.quantity}>{pendingItems}</Text>
+                        </View>
+                        <Text style={styles.numberText}>Bajas Pendientes</Text>
+                      </View>
+                    </View>
+
                 <Scanner isVisible={modalVisibleScanner} closeModal={closeModalScanner} onBarcodeScanned={handleBarcodeScanned}/>
         </StyledContainer>
-        </ScrollView>
+        </KeyboardAvoidingWrapper>
     );
 }
 
@@ -221,24 +213,6 @@ const styles = StyleSheet.create({
       paddingHorizontal: 20,
       borderRadius: 5,
       paddingTop: 20,
-    },
-    head: { height: 40, backgroundColor: secondary },
-    headText: { margin: 6, fontWeight: 'bold', color: primary,fontSize: 16, paddingLeft: 55,paddingRight: 55,},
-    text: {
-        backgroundColor: grey,
-        padding: 15,
-        paddingLeft: 55,
-        paddingRight: 55,
-        fontSize: 16,
-        marginVertical: 3,
-        color: secondary
-    },
-    UPC:{
-        padding: 15,
-        paddingLeft: 55,
-        paddingRight: 55,
-        fontSize: 16,
-        color: secondary
     },
     Ricon:{
         right: 15,
@@ -261,8 +235,49 @@ const styles = StyleSheet.create({
     },
     container: {
       flex: 1,
-      backgroundColor: 'white', // Set your background color
+      justifyContent: 'center',
+      alignItems: 'center',
     },
+    smallCircle: {
+      backgroundColor: primary,
+      borderRadius:50,
+      width: 270,
+      height: 180,
+      borderColor: secondary,
+      borderWidth : 7,
+      marginBottom: 10,
+      marginTop:10,
+      flex: 1,
+      flexDirection: 'row',
+    },
+    numberText: {
+      fontSize: 25, 
+      color: tertiary,
+      fontWeight:'bold',
+      letterSpacing: 1,
+      marginTop: 100,
+      marginLeft: 22,
+      position: 'absolute'
+
+    },
+    trending: {
+      marginLeft:20,
+      marginTop: 10,
+      position: 'absolute'
+    },
+    quantityContainer: {
+      alignItems: 'flex-end', 
+      flex: 1, 
+      marginRight: 20
+    },
+    quantity: {
+      fontSize: 50, 
+      color: secondary,
+      fontWeight:'bold',
+      letterSpacing: 1,
+      marginTop: 15,
+      marginLeft: 1,
+    }
   });
 
 const MyTextInput = ({label,openModalScanner, ...props}) =>{

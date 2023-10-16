@@ -40,19 +40,38 @@ const [municipio,setMunicipio] = useState();
 const [marca, setMarca] = useState();
 const [modelo,setModelo] = useState();
 const [resguardante,setResguardante] = useState();
+const [UPC,setUPC] = useState();
+const [serial,setSerial] = useState();
 
 const route = useRoute();
 const { reportNumber,history } = route.params;
+
+function formatSpanishDate(inputDateString) {
+  const date = new Date(inputDateString);
+
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short',
+  };
+
+  return date.toLocaleString('es-ES', options);
+}
+
 
 const getReport = async () => {
     const url = ip+`/getReportById/${reportNumber}`;
     try {
       const response = await axios.get(url);
       const reportObj = response.data;
-      console.log("this this: ",reportObj);
+
       setAccion(reportObj[0].Accion);
-      setFechaCreacion(reportObj[0].FechaCreacion);
-      setfechaAprobacion(reportObj[0].FechaAprobacion);
+      setFechaCreacion(formatSpanishDate(reportObj[0].FechaCreacion));
+      setfechaAprobacion(formatSpanishDate(reportObj[0].FechaAprobacion));
       setEstatus(reportObj[0].EstatusRep);
       setUsuario(reportObj[0].Usuario);
       setArticulo(reportObj[0].Articulo);
@@ -62,6 +81,8 @@ const getReport = async () => {
       setUbicacion(reportObj[0].Ubicacion);
       setMunicipio(reportObj[0].Municipio);
       setComentario(reportObj[0].Motivo);
+      setUPC(reportObj[0].UPC)
+      setSerial(reportObj[0].Serial)
     } catch (error) {
       console.error("Error fetching:", error);
     }
@@ -161,7 +182,7 @@ const handleMessage = (message,type = 'FAIL') => {
     return(
         <KeyboardAvoidingWrapper>
             <StyledContainer>
-                <StatusBar style="dark"/>
+            <StatusBar style="light" backgroundColor={secondary} />
                 <InnerContainer>
                     <PageTitle>Información</PageTitle>
                         <Formik
@@ -192,17 +213,21 @@ const handleMessage = (message,type = 'FAIL') => {
                                     onBlur={handleBlur('FechaCreacion')}
                                     value={fechaCreacion}
                                     readOnly
+                                    reportComment={true}
+                                    isMultiline={true}
                                 />
 
                                 <MyTextInput
                                     label="Fecha de Revisión"
                                     icon="calendar"
-                                    placeholder="-"
+                                    placeholder="Pendiente"
                                     placeholderTextColor={darklight}
                                     onChangeText={handleChange('FechaAprobacion')}
                                     onBlur={handleBlur('FechaAprobacion')}
                                     value={fechaAprobacion}
                                     readOnly
+                                    reportComment={true}
+                                    isMultiline={true}
                                 />
 
                                 <MyTextInput
@@ -238,6 +263,28 @@ const handleMessage = (message,type = 'FAIL') => {
                                     readOnly
                                 />
 
+                                  <MyTextInput
+                                    label="Número de Inventario"
+                                    icon="list-unordered"
+                                    placeholder="1234567890"
+                                    placeholderTextColor={darklight}
+                                    onChangeText={handleChange('articulo')}
+                                    onBlur={handleBlur('articulo')}
+                                    value={UPC}
+                                    readOnly
+                                />
+
+                                <MyTextInput
+                                    label="Número Serial"
+                                    icon="list-unordered"
+                                    placeholder="1234567890"
+                                    placeholderTextColor={darklight}
+                                    onChangeText={handleChange('articulo')}
+                                    onBlur={handleBlur('articulo')}
+                                    value={serial}
+                                    readOnly
+                                />
+                                
                                   <MyTextInput
                                     label="Marca"
                                     icon="list-unordered"

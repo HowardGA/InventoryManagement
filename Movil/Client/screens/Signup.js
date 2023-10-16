@@ -65,7 +65,7 @@ const handleSignup = (credentials, setSubmitting) =>{
     return(
         <KeyboardAvoidingWrapper>
             <StyledContainer>
-                <StatusBar style="dark"/>
+            <StatusBar style="light" backgroundColor={secondary} />
                 <InnerContainer>
                     <PageTitle>Gestión de Inventarios</PageTitle>
                     <SubTitle>Registrate</SubTitle>

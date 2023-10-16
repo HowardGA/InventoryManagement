@@ -92,7 +92,7 @@ const getReports = async () => {
 
     return(
         <StyledContainer>
-        <StatusBar style="dark" />
+<StatusBar style="light" backgroundColor={secondary} />
         <PageTitle>Reportes</PageTitle>
         <RightIcon reportHistory={true} onPress={openModalHistory}>
                     <Octicons name={'history'}size={30} color={secondary}/>

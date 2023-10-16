@@ -79,7 +79,7 @@ const handleLogin = (credentials, setSubmitting) =>{
     return(
         <KeyboardAvoidingWrapper>
             <StyledContainer>
-                <StatusBar style="dark"/>
+            <StatusBar style="light" backgroundColor={secondary} />
                 <InnerContainer>
                     <PageLogo resizeMode="cover" source={require('./../assets/images/C4Logo.png')}/>
                     <PageTitle>Gestión de Inventarios</PageTitle>
@@ -133,11 +133,6 @@ const handleLogin = (credentials, setSubmitting) =>{
                                 </StyledButton>}
 
                                 <Line/>
-
-                                <StyledButton google={true} onPress={handleSubmit}>
-                                    <Fontisto name="google" color={primary} size={25}/>
-                                    <ButtonText google={true}>Iniciar con Google</ButtonText>
-                                </StyledButton>
 
                                 <ExtraView>
                                     <ExtraText>¿No tienes una cuenta? </ExtraText>

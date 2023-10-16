@@ -408,7 +408,7 @@ const openModalScanner = (inputType) => {
       >
         <KeyboardAvoidingWrapper>
             <StyledContainer>
-                <StatusBar style="dark"/>
+            <StatusBar style="light" backgroundColor={secondary} />
                 <InnerContainer>
                     <PageTitle>Agregar</PageTitle>
                         <Formik
@@ -425,7 +425,7 @@ const openModalScanner = (inputType) => {
                         ({handleChange, handleBlur, handleSubmit, values, isSubmitting,setValues,setFieldValue}) => 
                             (<StyledFormArea>
                                 <MyTextInput
-                                  label="UPC"
+                                  label="Número de Inventario"
                                   icon="number"
                                   placeholder="1234567890"
                                   placeholderTextColor={darklight}

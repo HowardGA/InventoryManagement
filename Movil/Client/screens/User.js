@@ -129,7 +129,7 @@ const openModal = () => {
   
             let tableHTML = `<table border="1">
               <tr>
-                <th class="upc-serial">UPC</th>
+                <th class="upc-serial">Inventario</th>
                 <th class="upc-serial">Serial</th>
                 <th>Nombre</th>
                 <th>Modelo</th>
@@ -233,7 +233,7 @@ const openModal = () => {
   
             let tableHTML = `<table border="1">
               <tr>
-                <th class="upc-serial">UPC</th>
+                <th class="upc-serial">Inventario</th>
                 <th class="upc-serial">Serial</th>
                 <th>Nombre</th>
                 <th>Modelo</th>
@@ -316,7 +316,7 @@ const openModal = () => {
     return(
       <KeyboardAvoidingWrapper>
         <StyledContainer>
-            <StatusBar style="dark"/>
+        <StatusBar style="light" backgroundColor={secondary} />
             <View style={styles.center}>
             <PageLogo resizeMode="cover" source={require('./../assets/images/C4Logo.png')}/>
                 <PageTitle>{name} {lastName}</PageTitle>
@@ -333,15 +333,15 @@ const openModal = () => {
                 <Users isVisible={modalVisible} closeModal={closeModal} user={selectedUser}/>
 
                 <View style={styles.center}>
-                {(role == 1) &&
+                {(role == 1 || role == 2) &&
                 <SubTitle>Generar PDF de los artículos:</SubTitle> }
                 <StyledFormArea>
-                {(role == 1) &&
+                {(role == 1|| role == 2) &&
                 <StyledButton google={true} onPress={generatePDFFromActiveItems}>
                     <Ionicons name={'document'}size={30} color={primary}/>
                     <ButtonText>Activos</ButtonText>
                 </StyledButton>}
-                {(role == 1) &&
+                {(role == 1 || role == 2) &&
                 <StyledButton google={true} onPress={generatePDFFromBajaItems}>
                     <Ionicons name={'document'}size={30} color={primary}/>
                     <ButtonText>Dados de Baja</ButtonText>

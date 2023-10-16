@@ -1,6 +1,6 @@
 import React, {useState, useContext,useEffect} from 'react';
-import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
+import { StatusBar } from 'expo-status-bar';
 
 //formik
 import {Formik} from 'formik';
@@ -59,7 +59,6 @@ const [motivo, setMotivo] = useState();
 const [selector, setSelector] = useState('');
 const [modalVisibleSelector,setModalVisibleSelector] = useState(false);
 const [modalVisibleLocationHistory,setModalVisibleLocationHistory] = useState(false);
-const [selectorPicked, setSelectorPicked] = useState('');
 const [comentary,setComentary] = useState('');
 const [ubicacionSelectorPicked, setUbicacionSelectorPicked] = useState('');
 const [municipioSelectorPicked, setMunicipioSelectorPicked] = useState('');
@@ -77,7 +76,7 @@ const [date, setDate] = useState(new Date(2000, 0, 1));
 const route = useRoute();
 const { item } = route.params;
 //values sent from DisableItems
-const {UPCDisable, baja} = route.params;
+const {UPCDisable, baja, history} = route.params;
 
 //store the image names
 const [imageNames , setImageNames] = useState([]);
@@ -89,6 +88,22 @@ const {email} = storedCredentials;
 const marcaOptions = dbBrandValue;
 
 const ubicacionOptions = dbLocationValue;
+//format the date
+function formatSpanishDate(inputDateString) {
+  const date = new Date(inputDateString);
+
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short',
+  };
+
+  return date.toLocaleString('es-ES', options);
+}
 
 const getLocations = async () => {
   const url = ip+"/ubicaciones";
@@ -138,7 +153,7 @@ const getAllInfo = async () => {
                 setItemName(Nombre);
                 setItemModel(Modelo);
                 setItemDesc(Descripcion);
-                setItemCreation(FechaCreacion);
+                setItemCreation(formatSpanishDate(FechaCreacion));
                 setItemBrand(Marca);
                 setitemLocation(locacion);
                 setitemMunicipio(Municipio);
@@ -369,7 +384,7 @@ const openModalScanner = () => {
     return(
         <KeyboardAvoidingWrapper>
             <StyledContainer>
-                <StatusBar style="dark"/>
+            <StatusBar style="light" backgroundColor={secondary} />
                 <InnerContainer>
                     <PageTitle>{item || UPCDisable}</PageTitle>
                     <RightIcon onPress={openModalLocationHistory}>
@@ -403,7 +418,7 @@ const openModalScanner = () => {
                         ({handleChange, handleBlur, handleSubmit, values, isSubmitting,setValues,setFieldValue}) => 
                             (<StyledFormArea>
                                 <MyTextInput
-                                    label="UPC"
+                                    label="Número de Inventario"
                                     icon="number"
                                     placeholder="1234567890"
                                     placeholderTextColor={darklight}
@@ -534,6 +549,8 @@ const openModalScanner = () => {
                                     onBlur={handleBlur('fechaCreacion')}
                                     value={values.fechaCreacion}
                                     readOnly
+                                    reportComment={true}
+                                    isMultiline={true}
                                 />
 
                                 <MyTextInput
@@ -584,7 +601,7 @@ const openModalScanner = () => {
                                         value={values.motivo}
                                         readOnly
                                     />}
-                                 {baja &&
+                                 {baja && !history &&
                                  <MyTextInput
                                  label="Agregar Fecha de comfirmación"
                                  icon="calendar"
@@ -665,7 +682,7 @@ const openModalScanner = () => {
                                     <ButtonText>Dar de Baja</ButtonText>
                                 </StyledButton>}
 
-                                  {!isSubmitting && baja && <StyledButton onPress={defenitiveBaja} disable={true}>
+                                  {!isSubmitting && baja && !history &&<StyledButton onPress={defenitiveBaja} disable={true}>
                                   <ButtonText>Comfirmar Baja</ButtonText>
                               </StyledButton>}
 
