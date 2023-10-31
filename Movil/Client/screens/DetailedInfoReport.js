@@ -8,21 +8,24 @@ import {Formik} from 'formik';
 //icons
 import {Octicons, Ionicons} from '@expo/vector-icons'
 
-import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
-        ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
+import{StyledContainer,InnerContainer,PageTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, StyledButton, ButtonText, Colors,MsgBox,
+        } from './../components/styles';
 
-import {View,ActivityIndicator,Alert} from 'react-native';
+import {View,ActivityIndicator,Alert,Image,TouchableOpacity} from 'react-native';
 import CredentialsContext from './../components/CredentialsContext';
 
 //Keyboard
 import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 
 import { useRoute } from '@react-navigation/native';
+//Image Modal
+import Images from '../Modal/Images';
 
 const {tertiary, darklight,secondary, primary, grey}= Colors;
 
 const Item = () => {
 const ip = 'http://192.168.1.187:8080/api';
+const imageIP = 'http://192.168.1.187:8080/images/';
 const [message,setMessage] = useState();
 const [messageType,setMessageType] = useState();
 const [report, setReport] = useState({});
@@ -42,7 +45,24 @@ const [modelo,setModelo] = useState();
 const [resguardante,setResguardante] = useState();
 const [UPC,setUPC] = useState();
 const [serial,setSerial] = useState();
+//store the image names
+const [imageNames , setImageNames] = useState([]);
+const [selectedImage, setSelectedImage] = useState(null);
+const [modalImagesVisible, setModalImagesVisible] = useState(false);
 
+const handleImageClick = (imageName) => {
+  setSelectedImage(imageName);
+  setModalImagesVisible(true);
+};
+
+const openModalImages = () => {
+  setModalImagesVisible(true);
+}
+
+const closeModalImages = () => {
+  setModalImagesVisible(false);
+  setSelectedImage(null);
+};
 const route = useRoute();
 const { reportNumber,history } = route.params;
 
@@ -83,6 +103,8 @@ const getReport = async () => {
       setComentario(reportObj[0].Motivo);
       setUPC(reportObj[0].UPC)
       setSerial(reportObj[0].Serial)
+      setImageNames(reportObj[0].images);
+
     } catch (error) {
       console.error("Error fetching:", error);
     }
@@ -92,10 +114,11 @@ const getReport = async () => {
     handleMessage(null);
     const url = ip+"/updItem";
     const updValues = {
-      UPC: articulo,
+      UPC: UPC,
       ubicacion: ubicacion,
       comentario: comentario,
-      reporte:reportNumber
+      reporte:reportNumber,
+      municipio: municipio
     };
     axios
         .put(url,updValues)
@@ -111,7 +134,7 @@ const getReport = async () => {
              setSubmitting(false);
   
     }).catch((error) => {
-        console.error(error);
+        console.error("Yo? ",error);
         setSubmitting(false);
         handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
     })    
@@ -121,7 +144,7 @@ const getReport = async () => {
     handleMessage(null);
     const url = ip+"/disableItem/1";
     const updValues = {
-      UPC: articulo,
+      UPC: UPC,
       comentario: comentario,
       reporte:reportNumber
     };
@@ -139,7 +162,7 @@ const getReport = async () => {
              setSubmitting(false);
   
     }).catch((error) => {
-        console.error(error);
+        console.error("got an error fam: ",error);
         setSubmitting(false);
         handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
     })    
@@ -154,7 +177,7 @@ const handleMessage = (message,type = 'FAIL') => {
     Alert.alert('Cuidado!', 'Esta apunto de aceptar el cambio, ¿Esta seguro?', [
       {
         text: 'Cancelar',
-        
+        onPress: () => setSubmitting(false)
       },
       {
         text: 'Aceptar',
@@ -352,6 +375,16 @@ const handleMessage = (message,type = 'FAIL') => {
                                     isMultiline={true}
                                 />
 
+                                  <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                                        {imageNames.map((imageName, index) => (
+                                          <TouchableOpacity key={index} onPress={() => {openModalImages(),handleImageClick(imageName)}}>
+                                            <Image
+                                              source={{ uri: `${imageIP}${imageName}` }}
+                                              style={{ width: 100, height: 100, margin: 3 }}
+                                            />
+                                          </TouchableOpacity>
+                                        ))}
+                                    </View>
                                 
                                 <MsgBox type={messageType}>{message}</MsgBox>
 
@@ -370,6 +403,7 @@ const handleMessage = (message,type = 'FAIL') => {
                             </StyledFormArea>
                     )}
                         </Formik>
+                        <Images modalImagesVisible={modalImagesVisible} closeModalImages={closeModalImages} imageIP={imageIP} selectedImage={selectedImage}/>
                 </InnerContainer>
             </StyledContainer>
         </KeyboardAvoidingWrapper>

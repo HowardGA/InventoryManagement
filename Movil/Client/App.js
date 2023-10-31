@@ -1,4 +1,4 @@
-import React,{ useEffect, useState } from 'react';
+import React,{ useState } from 'react';
 
 //Screen Stacks
 import RootStack from './Navigators/RootStack';

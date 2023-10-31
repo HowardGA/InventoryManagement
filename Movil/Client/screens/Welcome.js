@@ -1,19 +1,17 @@
-import React, {useState, useContext,useEffect} from 'react';
+import React, {useState,useEffect} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
 //icons
 import {Ionicons} from '@expo/vector-icons'
 
-import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
-        ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
+import{StyledContainer,PageTitle,StyledFormArea,StyledTextInput, StyledInputLabel, RightIcon, StyledButton, Colors,MsgBox,
+       } from './../components/styles';
 
-import {StyleSheet,View,Text,TouchableOpacity,ActivityIndicator,ScrollView,RefreshControl} from 'react-native';
+import {StyleSheet,View,Text,ActivityIndicator} from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
-const {tertiary, darklight,secondary, primary,grey}= Colors;
-
-import { Table, Row, Rows } from 'react-native-table-component';
+const {tertiary, darklight,secondary, primary}= Colors;
 
 import axios from 'axios';
 

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Client",
-    "slug": "Client",
+    "name": "Inventario C4",
+    "slug": "inventory-control",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/C4Logo.png",
@@ -11,20 +11,35 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/images/C4Logo.png",
+        "backgroundColor": "#60192b"
+      },
+      "package": "com.howard_garcia.inventorycontrol"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ba105741-fa0b-45aa-8fc4-d0ee9b272fbd"
+      }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
+    "owner": "howard_garcia"
   }
 }

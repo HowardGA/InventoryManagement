@@ -10,14 +10,12 @@ import { Picker } from '@react-native-picker/picker';
 //icons
 import {Octicons, Ionicons} from '@expo/vector-icons'
 
-import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,
+import{StyledContainer,InnerContainer,PageTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,
 StyledScrollView} from './../components/styles';
 
 import {View,ActivityIndicator,Alert,RefreshControl,Image} from 'react-native';
 
 import CredentialsContext from './../components/CredentialsContext';
-import { useFocusEffect } from '@react-navigation/native';
-
 //import image picker
 import * as ImagePicker from 'expo-image-picker';
 
@@ -29,7 +27,7 @@ import Scanner from './../Modal/BarCodeScannerM';
 import Brand from './../Modal/Brand';
 import Location from './../Modal/Location';
 
-const {tertiary, darklight,secondary, primary, grey}= Colors;
+const { darklight,secondary, primary, grey}= Colors;
 
 const Add = () => {
   //get stored credentials
@@ -62,9 +60,7 @@ const [refreshing, setRefreshing] = useState(false);
 
 //gets this values from the DataBase
 const marcaOptions = dbBrandValue;
-
 const ubicacionOptions = dbLocationValue;
-
 const MunicipioOptions = ['Playas de Rosarito','Tijuana','Tecate','Ensenada','Mexicali'];
 
 const getLocations = async () => {
@@ -154,9 +150,17 @@ useEffect(() => {
       console.error(error);
     }
   };
+   // Check for UPC
+   if (upcScannedData) {
+    checkId(upcScannedData, "UPC");
+  }
+  // Check for Serial
+  if (serialScannedData) {
+    checkId(serialScannedData, "Serial");
+  }
 
   fetchData();
-}, []);
+}, [upcScannedData, serialScannedData]);
 
 
 const handleAdd = async (values, setSubmitting, pickedImages) => {
@@ -164,8 +168,6 @@ const handleAdd = async (values, setSubmitting, pickedImages) => {
     handleMessage(null);
     const url = `${ip}/addItem`;
     values.email = email;
-    console.log(values);
-
  
     const formData = new FormData();
     for (const key in values) {
@@ -595,10 +597,10 @@ const openModalScanner = (inputType) => {
                 {useEffect(() => {
                     if (upcScannedData) {
                       setValues({ ...values, codigo: upcScannedData });
-                      checkId(upcScannedData,"UPC");
+                      //checkId(upcScannedData,"UPC");
                     }  
                     if (serialScannedData) {
-                      checkId(serialScannedData,"Serial");
+                     // checkId(serialScannedData,"Serial");
                       setValues({ ...values, serial: serialScannedData });
                     }                   
                     if (locationValue){
@@ -607,9 +609,7 @@ const openModalScanner = (inputType) => {
                     if (brandValue){
                         setFieldValue('marca', brandValue);
                     }
-                    if (scannedDataSerial1) {
-                      setValues({ ...values, serial: scannedData });
-                    }
+
                     setFieldValue('municipio',municipio);
                     if(cleanInputs){
                       setValues({
@@ -628,6 +628,7 @@ const openModalScanner = (inputType) => {
                       setMunicipio(""); 
                       setCleanInputs(false);
                       setSerialScannedData("");
+                      setUpcScannedData("");
                     }
                 }, [upcScannedData,serialScannedData,locationValue,brandValue,municipio,cleanInputs,setBrandValue,setLocationValue,setMunicipio,setCleanInputs])}
 
@@ -665,7 +666,7 @@ const MyTextInput = ({ label, icon, openModalScanner, inputType,isMultiline, ...
       <StyledTextInput {...props} 
           multiline={isMultiline}
           numberOfLines={isMultiline ? 4 : 1} />
-      {label === 'UPC' && (
+      {label === 'Número de Inventario' && (
         <RightIcon onPress={() => openModalScanner('UPC')}>
           <Ionicons name={'barcode-outline'} size={30} color={secondary} />
         </RightIcon>

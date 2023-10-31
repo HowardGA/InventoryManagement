@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View,ActivityIndicator,StyleSheet,TouchableOpacity} from 'react-native';
+import { Modal, View,ActivityIndicator,StyleSheet,TouchableOpacity,Alert} from 'react-native';
 import axios from 'axios';
 
 import{MsgBox,StyledInputLabel,StyledFormArea,StyledButton, ButtonText, Colors} from '../components/styles';
@@ -17,11 +17,27 @@ const Users = ({ isVisible, closeModal, user}) => {
     const [messageType,setMessageType] = useState();
     const [selectorValue, setSelectorValue] = useState(); 
 
-    console.log(user);
     const arrayRoles = ['Admin','General','Visualizador'];
 
      const disableUser = () => {
+      const url = `${ip}/disableUser/${user}`;
+      axios
+      .put(url)
+      .then((response) => {
+          const result = response.data;
+          const {message,status} = result;
 
+          if (status !== 'SUCCESS'){
+              handleMessage(message,status);
+          }else{
+            handleMessage(message,status);
+          }
+
+  }).catch((error) => {
+      console.error(error);
+      handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
+  })  
+      closeModal();
      }
 
     const handleSelector = (values,setSubmitting) => {
@@ -51,6 +67,18 @@ const Users = ({ isVisible, closeModal, user}) => {
     const handleMessage = (message,type = 'FAIL') => {
         setMessage(message);
         setMessageType(type);
+    }
+
+    const userAlert = () => {
+        Alert.alert('Cuidado!', 'Esta apunto de deshabilitar a un usuario, no podra habilitarlo de nuevo, esta seguro de proceder?', [
+          {
+            text: 'Cancelar',
+          },
+          {
+            text: 'Proceder',
+            onPress: () => disableUser(),
+          }
+        ]);
     }
 
     return (
@@ -109,7 +137,7 @@ const Users = ({ isVisible, closeModal, user}) => {
                     <MsgBox type={messageType}>{message}</MsgBox>
 
                     {!isSubmitting && (
-                      <StyledButton onPress={disableUser} disable={true}>
+                      <StyledButton onPress={userAlert} disable={true}>
                         <ButtonText>Dar de Baja</ButtonText>
                       </StyledButton>
                     )}

@@ -4,10 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 //icons
 import {Ionicons} from '@expo/vector-icons'
 
-import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
-        ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
+import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea, StyledButton, ButtonText, Colors,Line,
+ } from './../components/styles';
 
-import {View,StyleSheet,Text,TouchableOpacity,Platform} from 'react-native';
+import {View,StyleSheet,Text,TouchableOpacity} from 'react-native';
 
 import CredentialsContext from './../components/CredentialsContext';
 
@@ -28,7 +28,7 @@ import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 import {printToFileAsync} from 'expo-print';
 import {shareAsync} from 'expo-sharing';
 
-const {tertiary, darklight,secondary, primary, grey}= Colors;
+const {tertiary,secondary, primary}= Colors;
 
 const User = () => {
 const [hidePassword,setHidePassword] = useState(true);
@@ -53,7 +53,7 @@ const clearLogin = () => {
       .then(() => {
         setStoredCredentials("");
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.error(error));
   };
 
   const getUsers = async () => {
@@ -346,9 +346,10 @@ const openModal = () => {
                     <Ionicons name={'document'}size={30} color={primary}/>
                     <ButtonText>Dados de Baja</ButtonText>
                 </StyledButton>}
+                <Line/>
                 <StyledButton logout={true} onPress={clearLogin}>
                 <Ionicons name={'log-out'}size={30} color={primary}/>
-                    <ButtonText>Logout</ButtonText>
+                    <ButtonText>Cerrar Sesión</ButtonText>
                 </StyledButton>
                 </StyledFormArea>
                 </View>

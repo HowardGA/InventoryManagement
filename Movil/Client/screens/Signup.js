@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
 //import axios
@@ -8,9 +8,9 @@ import axios from 'axios';
 import {Formik} from 'formik';
 
 //icons
-import {Octicons, Ionicons, Fontisto} from '@expo/vector-icons'
+import {Octicons, Ionicons} from '@expo/vector-icons'
 
-import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
+import{StyledContainer,InnerContainer,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
         ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
 
 import {View,ActivityIndicator} from 'react-native';

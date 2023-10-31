@@ -11,8 +11,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 //icons
 import {Octicons, Ionicons} from '@expo/vector-icons'
 
-import{StyledContainer,InnerContainer,PageLogo,PageTitle,SubTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
-        ExtraView,ExtraText,Textlink,TextLinkContent} from './../components/styles';
+import{StyledContainer,InnerContainer,PageTitle,StyledFormArea,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,
+        } from './../components/styles';
 
 import {View,ActivityIndicator,Alert,Image,TouchableOpacity} from 'react-native';
 import CredentialsContext from './../components/CredentialsContext';
@@ -24,6 +24,7 @@ import Scanner from './../Modal/BarCodeScannerM';
 import Selector from '../Modal/Selector';
 import LocationHistory from '../Modal/LocationHostory';
 import Disable from '../Modal/Disable';
+import Images from '../Modal/Images';
 
 import { useRoute } from '@react-navigation/native';
 
@@ -82,12 +83,32 @@ const {UPCDisable, baja, history} = route.params;
 const [imageNames , setImageNames] = useState([]);
 
 const {storedCredentials, setStoredCredentials} = useContext(CredentialsContext); 
-const {email} = storedCredentials;
+const {email,role} = storedCredentials;
 
 //gets this values from the DataBase
 const marcaOptions = dbBrandValue;
+//check if the value is active or not to show the buttons
+const [checkItemStatus , setCheckItemStatus] = useState(false);
 
-const ubicacionOptions = dbLocationValue;
+//image Modal
+const [selectedImage, setSelectedImage] = useState(null);
+const [modalImagesVisible, setModalImagesVisible] = useState(false);
+
+const handleImageClick = (imageName) => {
+  setSelectedImage(imageName);
+  setModalImagesVisible(true);
+};
+
+const openModalImages = () => {
+  setModalImagesVisible(true);
+}
+
+const closeModalImages = () => {
+  setModalImagesVisible(false);
+  setSelectedImage(null);
+};
+//end image modal
+
 //format the date
 function formatSpanishDate(inputDateString) {
   const date = new Date(inputDateString);
@@ -159,6 +180,8 @@ const getAllInfo = async () => {
                 setitemMunicipio(Municipio);
                 setItemUsr(usuario);
                 setItemStatus(estado);
+                let part = estado.split(',');
+                part[0] == 'Activo' ? setCheckItemStatus(true) : setCheckItemStatus(false);
                 setImageNames(images);
                 setResguardante(Resguardante);
   }).catch((error) => {
@@ -188,6 +211,34 @@ useEffect(() => {
 
 const handleUpdate = (values, setSubmitting) =>{
   handleMessage(null);
+  if(role ==1){
+    const url = ip+"/updItem";
+    const {ubicacion, municipio} = values;
+    const updValues = {
+      UPC: UPC,
+      ubicacion: ubicacion,
+      comentario: comentary,
+      municipio: municipio
+    };
+    axios
+        .put(url,updValues)
+        .then((response) => {
+            const result = response.data;
+            const {message,status} = result;
+  
+            if (status !== 'SUCCESS'){
+                handleMessage(message,status);
+            }else{
+              handleMessage(message,status);
+            }
+             setSubmitting(false);
+  
+    }).catch((error) => {
+        console.error("Yo? ",error);
+        setSubmitting(false);
+        handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
+    })    
+  }else{
   const url = ip+"/addReport";
   const updValues = {
     UPC: values.codigo,
@@ -197,7 +248,6 @@ const handleUpdate = (values, setSubmitting) =>{
     accion: 'Actualización',
     usuario: email
   };
-  console.log(updValues);
   axios
       .post(url,updValues)
       .then((response) => {
@@ -216,7 +266,8 @@ const handleUpdate = (values, setSubmitting) =>{
       console.error(error);
       setSubmitting(false);
       handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
-  })    
+  })   
+} 
 }
 
 const handleMessage = (message,type = 'FAIL') => {
@@ -234,7 +285,6 @@ const openModalScanner = () => {
 
   const handleBarcodeScanned = (data) => {
     setScannedData(data); 
-    console.log("inside add: "+scannedData);
     setModalVisibleScanner(false);
   };
 
@@ -262,10 +312,21 @@ const openModalScanner = () => {
 };
 
   const handleComentary = (data) => {
-    setComentary(data); //comentary of why the locatio was changed
+    setComentary(data); 
   };
 
   const disableAlert = () => {
+    if(role == 1){
+      Alert.alert('Cuidado!', 'Tiene permisos de Administrador, ¿Esta usted seguro de dar de baja este articulo? Una vez ejecutado el cambio no se podra revertir.', [
+        {
+          text: 'Cancelar',
+        },
+        {
+          text: 'Proceder',
+          onPress: () => openModalDisable(),
+        }
+      ]);
+    }else{
     Alert.alert('Cuidado!', 'Un administrador debera aceptar su solicitud de baja para este articulo, ¿Esta usted seguro de dar de baja este articulo? Una vez ejecutado el cambio no se podra revertir.', [
       {
         text: 'Cancelar',
@@ -276,7 +337,32 @@ const openModalScanner = () => {
       }
     ]);
   }
+  }
+  const adminDisable = (issue) => {
+    handleMessage(null);
+    const url = ip+"/disableItem/1";
+    const updValues = {
+      UPC: UPC,
+      comentario: issue,
+    };
+    axios
+        .post(url,updValues)
+        .then((response) => {
+            const result = response.data;
+            const {message,status} = result;
   
+            if (status !== 'SUCCESS'){
+                handleMessage(message,status);
+            }else{
+              handleMessage(message,status);
+            }
+  
+    }).catch((error) => {
+        console.error("got an error fam: ",error);
+        handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
+    })    
+  }
+
   const disableReport = (issue) =>{
     handleMessage(null);
     const url = ip+"/addReport";
@@ -288,7 +374,6 @@ const openModalScanner = () => {
       accion: 'Petición de Baja',
       usuario: email
     };
-    console.log(updValues);
     axios
         .post(url,updValues)
         .then((response) => {
@@ -321,8 +406,7 @@ const openModalScanner = () => {
   };
 
   const handleModalDisable = (value) => {
-    console.log("this is the value:" ,value);
-      disableReport(value)
+    role == 1 ? adminDisable(value) : disableReport(value);
     setModalVisibleDisable(false);
   };
   
@@ -355,7 +439,6 @@ const openModalScanner = () => {
   }
 
   const defenitiveBaja = () =>{
-    console.log("am i here?")
     handleMessage(null);
     const url = ip+"/disableItem/2";
     const updValues = {
@@ -603,7 +686,7 @@ const openModalScanner = () => {
                                     />}
                                  {baja && !history &&
                                  <MyTextInput
-                                 label="Agregar Fecha de comfirmación"
+                                 label="Agregar Fecha de confirmación"
                                  icon="calendar"
                                  placeholder="YYYY - MM - DD"
                                  placeholderTextColor={darklight}
@@ -661,29 +744,30 @@ const openModalScanner = () => {
                 }, [motivo,resguardante, UPC,serial, itemName, itemModel, itemDesc, locationValue, brandValue, itemBrand, marcaOptions, itemLocation, itemUsr, itemStatus,itemMunicipio])}
 
                                     <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                                      {imageNames.map((imageName, index) => (
-                                        <Image
-                                          key={index}
-                                          source={{ uri: `${imageIP}${imageName}` }}
-                                          style={{ width: 100, height: 100, margin: 3 }}
-                                        />
-                                      ))}
+                                        {imageNames.map((imageName, index) => (
+                                          <TouchableOpacity key={index} onPress={() => {openModalImages(),handleImageClick(imageName)}}>
+                                            <Image
+                                              source={{ uri: `${imageIP}${imageName}` }}
+                                              style={{ width: 100, height: 100, margin: 3 }}
+                                            />
+                                          </TouchableOpacity>
+                                        ))}
                                     </View>
 
                                 <MsgBox type={messageType}>{message}</MsgBox>
 
-                                {!isSubmitting && !isButtonClicked && !baja &&(
+                                {!isSubmitting && !isButtonClicked && !baja && checkItemStatus&&( 
                                   <StyledButton onPress={handleSubmit} disabled={!ubicacionModified}>
                                     <ButtonText>Actualizar</ButtonText>
                                   </StyledButton>
                                 )}
 
-                                {!isSubmitting && !baja && <StyledButton onPress={disableAlert} disable={true}>
+                                {!isSubmitting && !baja && checkItemStatus&&<StyledButton onPress={disableAlert} disable={true}>
                                     <ButtonText>Dar de Baja</ButtonText>
                                 </StyledButton>}
 
                                   {!isSubmitting && baja && !history &&<StyledButton onPress={defenitiveBaja} disable={true}>
-                                  <ButtonText>Comfirmar Baja</ButtonText>
+                                  <ButtonText>Confirmar Baja</ButtonText>
                               </StyledButton>}
 
                                 {isSubmitting && <StyledButton disabled={true}>
@@ -698,6 +782,7 @@ const openModalScanner = () => {
                         <Selector isVisible={modalVisibleSelector} closeModal={closeModalSelector} onSelector={handleSelector} action={selector} onComentary={handleComentary} onSelectorChange={handleSelectorChange}/>
                         <LocationHistory isVisible={modalVisibleLocationHistory} closeModal={closeModalLocationHistory}  action={UPC}/>
                         <Disable isVisible={modalVisibleDisable} closeModal={closeModalDisable} onDisable={handleModalDisable}/>
+                        <Images modalImagesVisible={modalImagesVisible} closeModalImages={closeModalImages} imageIP={imageIP} selectedImage={selectedImage}/>
                 </InnerContainer>
             </StyledContainer>
         </KeyboardAvoidingWrapper>

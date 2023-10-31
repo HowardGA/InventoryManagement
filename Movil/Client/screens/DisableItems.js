@@ -6,10 +6,10 @@ import {Ionicons,Octicons} from '@expo/vector-icons'
 
 import { Formik } from 'formik';
 
-import{StyledContainer,StyledFormArea,PageLogo,PageTitle,StyledTextReport,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
+import{StyledContainer,StyledFormArea,PageTitle,StyledTextReport,StyledTextInput, StyledInputLabel, RightIcon, StyledButton, Colors,MsgBox,
        } from './../components/styles';
 
-import {StyleSheet,View,ScrollView,RefreshControl,FlatList,ActivityIndicator} from 'react-native';
+import {StyleSheet,View,RefreshControl,FlatList,ActivityIndicator} from 'react-native';
 
 
 import { useNavigation } from '@react-navigation/native';
@@ -87,7 +87,6 @@ const lookUp = (values,setSubmitting) => {
   const handleButtonClick = (item) => {
     const url = ip+`/getBajasPendientes/${item}`;
     const UPCDisable = item;
-    console.log("This is at Scanner: ",UPCDisable," ",baja)
     axios
         .get(url)
         .then((response) => {
@@ -95,7 +94,6 @@ const lookUp = (values,setSubmitting) => {
             const {message,status} = result;
   
             if (status !== 'SUCCESS'){
-              console.log("error here")
                 handleMessage(message,status);
             }else{
               handleMessage(message,status);

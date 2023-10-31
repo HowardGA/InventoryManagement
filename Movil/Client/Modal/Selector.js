@@ -22,8 +22,6 @@ const Selector = ({ isVisible, closeModal, onSelector,action,onComentary,onSelec
     const selectorOptions = dbSelectorValue;
     const arrayMunicipios = ['Playas de Rosarito','Tijuana','Tecate','Ensenada','Mexicali'];
 
-    console.log(action);
-
     const getSelector = async () => {
       const url = ip + `/${action}`;
         axios
@@ -48,7 +46,6 @@ const Selector = ({ isVisible, closeModal, onSelector,action,onComentary,onSelec
 
     const handleSelector = (values,setSubmitting) => {
         onSelector(selectorValue);
-        console.log(values);
         onComentary(values.comentario);
         closeModal();
         setSubmitting(false);

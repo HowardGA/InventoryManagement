@@ -1,14 +1,14 @@
-import React, {useState, useContext,useEffect} from 'react';
+import React, {useState,useEffect} from 'react';
 import { StatusBar } from 'expo-status-bar';
 
 //icons
 import {Ionicons,Octicons} from '@expo/vector-icons'
 
 
-import{StyledContainer,InnerContainer,PageLogo,PageTitle,StyledTextReport,StyledTextInput, StyledInputLabel, LeftIcon, RightIcon, StyledButton, ButtonText, Colors,MsgBox,Line,
+import{StyledContainer,PageTitle,StyledTextReport, RightIcon, Colors,
        } from './../components/styles';
 
-import {StyleSheet,View,ScrollView,RefreshControl,FlatList} from 'react-native';
+import {StyleSheet,View,RefreshControl,FlatList} from 'react-native';
 
 
 import { useNavigation } from '@react-navigation/native';

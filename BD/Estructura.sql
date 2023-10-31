@@ -10,6 +10,11 @@ create table Estatus_Articulo(
 
 );
 
+create table Estatus_Usario (
+    Numero tinyint primary key auto_increment,
+    Estado varchar(10) not null
+);
+
 create table Rol(
     Numero tinyint primary key auto_increment,
     Rol varchar(15) not null
@@ -26,11 +31,15 @@ create table Usuario(
     ApePat varchar(20) not null,
     Correo varchar(30) not null,
     Passwd varchar(80) not null,
-    Rol tinyint not null 
+    Rol tinyint not null ,
+    Estado tinyint not null
 );
 
 ALTER TABLE Usuario
 ADD CONSTRAINT FK_Rol FOREIGN KEY (Rol) REFERENCES Rol (Numero);
+
+ALTER TABLE Usuario
+ADD CONSTRAINT FK_Estado FOREIGN KEY (Estado) REFERENCES Estatus_Usario (Numero);
 
 create table Marca(
     Numero tinyint primary key auto_increment,
@@ -157,6 +166,7 @@ BEGIN
 END;
 //
 DELIMITER ;
+
 
 
 

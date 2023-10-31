@@ -54,8 +54,7 @@ const handleLogin = (credentials, setSubmitting) =>{
     }).catch((error) => {
         console.error(error);
         setSubmitting(false);
-        handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
-    })
+        handleMessage(`Ocurrió un error, checa tu conexión y vuelve a intentarlo.`);})
 }
 
     const handleMessage = (message,type = 'FAIL') => {
@@ -67,7 +66,6 @@ const handleLogin = (credentials, setSubmitting) =>{
         AsyncStorage.setItem('inventoryManagementCredentials',JSON.stringify(credentials))
         .then(() => {
             handleMessage(message,status);
-            console.log("this are the credentials: ",credentials);
             setStoredCredentials(credentials);
         })
         .catch(error => {
@@ -82,7 +80,7 @@ const handleLogin = (credentials, setSubmitting) =>{
             <StatusBar style="light" backgroundColor={secondary} />
                 <InnerContainer>
                     <PageLogo resizeMode="cover" source={require('./../assets/images/C4Logo.png')}/>
-                    <PageTitle>Gestión de Inventarios</PageTitle>
+                    <PageTitle>Control de Inventarios</PageTitle>
                     <SubTitle>Inicio de Sesión</SubTitle>
                     <Formik
                         initialValues={{email:'',password:''}}
