@@ -1,7 +1,6 @@
 import React, {useState, useContext,useEffect} from 'react';
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
-
 //formik
 import {Formik} from 'formik';
 
@@ -16,7 +15,7 @@ import CredentialsContext from './../components/CredentialsContext';
 
 //Keyboard
 import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
-
+import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 //Image Modal
 import Images from '../Modal/Images';
@@ -49,6 +48,8 @@ const [serial,setSerial] = useState();
 const [imageNames , setImageNames] = useState([]);
 const [selectedImage, setSelectedImage] = useState(null);
 const [modalImagesVisible, setModalImagesVisible] = useState(false);
+
+const navigation = useNavigation();
 
 const handleImageClick = (imageName) => {
   setSelectedImage(imageName);
@@ -128,8 +129,12 @@ const getReport = async () => {
   
             if (status !== 'SUCCESS'){
                 handleMessage(message,status);
+                setSubmitting(false);
+
             }else{
               handleMessage(message,status);
+              setSubmitting(false);
+              navigation.navigate('Reportes');
             }
              setSubmitting(false);
   
@@ -156,8 +161,13 @@ const getReport = async () => {
   
             if (status !== 'SUCCESS'){
                 handleMessage(message,status);
+                setSubmitting(false);
+                navigation.navigate('Reportes');
+
             }else{
               handleMessage(message,status);
+              setSubmitting(false);
+
             }
              setSubmitting(false);
   
@@ -197,8 +207,44 @@ const handleMessage = (message,type = 'FAIL') => {
     
       fetchData();  },[]);
 
-    const handleRejection = () => {
+      const dismissAlert = () => {
+        Alert.alert('Cuidado!', 'Esta apunto de rechazar el cambio, ¿Esta seguro?', [
+          {
+            text: 'Cancelar',
+            onPress: () => setSubmitting(false)
+          },
+          {
+            text: 'Aceptar',
+            onPress: () => handleRejection()
+          }
+        ]);
+      }
+    
 
+    const handleRejection = () => {
+      handleMessage(null);
+    const url = `${ip}/removeReport`;
+    const updValues = {
+      reporte:reportNumber
+    };
+    axios
+        .post(url,updValues)
+        .then((response) => {
+            const result = response.data;
+            const {message,status} = result;
+  
+            if (status !== 'SUCCESS'){
+                handleMessage(message,status);
+
+            }else{
+              handleMessage(message,status);
+              navigation.navigate('Reportes');
+            }
+  
+    }).catch((error) => {
+        console.error("got an error fam: ",error);
+        handleMessage("Ocurrió un error, checa tu conexión y vuelve a intentarlo");
+    })    
     }
 
 
@@ -392,7 +438,7 @@ const handleMessage = (message,type = 'FAIL') => {
                                     <ButtonText>Aceptar</ButtonText>
                                 </StyledButton>}
 
-                                {!isSubmitting && !history && <StyledButton onPress={handleRejection} disable={true}>
+                                { !history && <StyledButton onPress={dismissAlert} disable={true}>
                                     <ButtonText>Rechazar</ButtonText>
                                 </StyledButton>}
 

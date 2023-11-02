@@ -19,6 +19,7 @@ import CredentialsContext from './../components/CredentialsContext';
 
 //Keyboard
 import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
+import { useNavigation } from '@react-navigation/native';
 
 import Scanner from './../Modal/BarCodeScannerM';
 import Selector from '../Modal/Selector';
@@ -72,7 +73,7 @@ const [modalVisibleDisable,setModalVisibleDisable] = useState(false);
 
 const [fechaComfirmacion, setFechaComfirmacion] = useState();
 const [show, setShow] = useState(false);
-const [date, setDate] = useState(new Date(2000, 0, 1));
+const [date, setDate] = useState(new Date());
 
 const route = useRoute();
 const { item } = route.params;
@@ -93,6 +94,8 @@ const [checkItemStatus , setCheckItemStatus] = useState(false);
 //image Modal
 const [selectedImage, setSelectedImage] = useState(null);
 const [modalImagesVisible, setModalImagesVisible] = useState(false);
+
+const navigation = useNavigation();
 
 const handleImageClick = (imageName) => {
   setSelectedImage(imageName);
@@ -456,6 +459,7 @@ const openModalScanner = () => {
                 handleMessage(message,status);
             }else{
               handleMessage(message,status);
+              navigation.navigate('Bajas');
             }
   
     }).catch((error) => {

@@ -26,6 +26,8 @@ const {tertiary, darklight,secondary, primary}= Colors;
 //Keyboard Avoiding View
 import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 
+import { registerIndieID} from 'native-notify';
+
 const Login = ({navigation}) => {
 const [hidePassword,setHidePassword] = useState(true);
 const [message,setMessage] = useState();
@@ -67,6 +69,9 @@ const handleLogin = (credentials, setSubmitting) =>{
         .then(() => {
             handleMessage(message,status);
             setStoredCredentials(credentials);
+            if(credentials.role == 1){
+            registerIndieID(`${credentials.email}`, 14286, 'vwfM8RtSKj5FbdvH2yaKfP');
+            }
         })
         .catch(error => {
             console.log(error);

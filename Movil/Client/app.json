@@ -20,7 +20,8 @@
         "foregroundImage": "./assets/images/C4Logo.png",
         "backgroundColor": "#60192b"
       },
-      "package": "com.howard_garcia.inventorycontrol"
+      "package": "com.howard_garcia.inventorycontrol",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"

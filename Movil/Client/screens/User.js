@@ -27,6 +27,7 @@ import KeyboardAvoidingWrapper from './../components/KeyboardAvoidingWrapper';
 //PDF imports
 import {printToFileAsync} from 'expo-print';
 import {shareAsync} from 'expo-sharing';
+import { unregisterIndieDevice } from 'native-notify';
 
 const {tertiary,secondary, primary}= Colors;
 
@@ -52,6 +53,7 @@ const clearLogin = () => {
     AsyncStorage.removeItem('inventoryManagementCredentials')
       .then(() => {
         setStoredCredentials("");
+        unregisterIndieDevice(`${email}`, 14286, 'vwfM8RtSKj5FbdvH2yaKfP');
       })
       .catch((error) => console.error(error));
   };

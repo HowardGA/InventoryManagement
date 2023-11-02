@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "962439909597",
+    "project_id": "c4-control-de-inventarios",
+    "storage_bucket": "c4-control-de-inventarios.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:962439909597:android:8e6cb223ea82b2f20fcb34",
+        "android_client_info": {
+          "package_name": "com.howard_garcia.inventorycontrol"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrC32G8yUtyIfva0U4PTnffk9MT_7mA4Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
