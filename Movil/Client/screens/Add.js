@@ -136,7 +136,6 @@ const sameIdAlert = (codeType) => {
   Alert.alert('Código Duplicado', message, [
     {
       text: 'OK',
-      onPress: () => setScannedData(),
     }
   ]);
 };
@@ -597,10 +596,8 @@ const openModalScanner = (inputType) => {
                 {useEffect(() => {
                     if (upcScannedData) {
                       setValues({ ...values, codigo: upcScannedData });
-                      //checkId(upcScannedData,"UPC");
                     }  
                     if (serialScannedData) {
-                     // checkId(serialScannedData,"Serial");
                       setValues({ ...values, serial: serialScannedData });
                     }                   
                     if (locationValue){

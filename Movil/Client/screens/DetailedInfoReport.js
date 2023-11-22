@@ -92,7 +92,7 @@ const getReport = async () => {
 
       setAccion(reportObj[0].Accion);
       setFechaCreacion(formatSpanishDate(reportObj[0].FechaCreacion));
-      setfechaAprobacion(formatSpanishDate(reportObj[0].FechaAprobacion));
+      reportObj[0].FechaAprobacion == null ? setfechaAprobacion() : setfechaAprobacion(formatSpanishDate(reportObj[0].FechaAprobacion));
       setEstatus(reportObj[0].EstatusRep);
       setUsuario(reportObj[0].Usuario);
       setArticulo(reportObj[0].Articulo);

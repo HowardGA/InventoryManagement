@@ -101,7 +101,7 @@ const lookUp = (values,setSubmitting) => {
             }  
     }).catch((error) => {
         console.error(error);
-        handleMessage("Articulo Inexistente");
+        handleMessage("No se encontro una baja pediente con ese número de inventario");
     })    
   };
 

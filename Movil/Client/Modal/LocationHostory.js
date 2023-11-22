@@ -35,10 +35,12 @@ const getLocationHistory = async () => {
     const fechaEntrada = new Date(location.FechaEntrada);
     const fechaSalida = location.FechaSalida ? new Date(location.FechaSalida) : "Ubicación Actual";
     const comentario = location.Comentario;
+    const municipio = location.Municipio;
   
     const notification = {
       id: i,
       ubicacion:ubicacion,
+      municipio: municipio,
       fechaEntrada: fechaEntrada,
       fechaSalida: fechaSalida,
       comentario: comentario
@@ -91,6 +93,7 @@ const getLocationHistory = async () => {
         Fecha de Salida: {item.fechaSalida.toLocaleString()}
       </StyledTextReport>
       <StyledTextReport>Ubicación: {item.ubicacion}</StyledTextReport>
+      <StyledTextReport>Municipio: {item.municipio}</StyledTextReport>
     </View>
   )}
   ItemSeparatorComponent={() => <View style={styles.separator} />}
